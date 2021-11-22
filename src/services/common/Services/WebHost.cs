@@ -76,7 +76,7 @@ namespace Mmm.Iot.Common.Services
 
                 var initialAppConfig = new AppConfig(configurationBuilder);
                 configurationBuilder = new ConfigurationBuilder();
-                if (initialAppConfig == null)
+                if (initialAppConfig != null)
                  {
                    configurationBuilder.AddAzureAppConfiguration(initialAppConfig.AppConfigurationConnectionString);
                  }
