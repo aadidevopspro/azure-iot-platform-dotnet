@@ -1,9 +1,10 @@
 // <copyright file="WebHost.cs" company="3M">
 // Copyright (c) 3M. All rights reserved.
 // </copyright>
-
+using System;
 using System.IO;
 using System.Reflection;
+using Azure.Identity;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.AzureAppConfiguration;
@@ -75,7 +76,16 @@ namespace Mmm.Iot.Common.Services
 
                 var initialAppConfig = new AppConfig(configurationBuilder);
                 configurationBuilder = new ConfigurationBuilder();
-                configurationBuilder.AddAzureAppConfiguration(initialAppConfig.AppConfigurationConnectionString);
+                if (initialAppConfig == null)
+                 {
+                   configurationBuilder.AddAzureAppConfiguration(initialAppConfig.AppConfigurationConnectionString);
+                 }
+                else
+                 {
+                   var settings = config.Build();
+                   configurationBuilder.AddAzureAppConfiguration(options =>options.Connect(new Uri(settings["AppConfigEndpoint"]), new ManagedIdentityCredential(settings["ManagedIdentityClientId"])));
+                 }
+                 
                 var azureAppConfigConfig = new AppConfig(configurationBuilder);
                 config.AddConfiguration(azureAppConfigConfig.Configuration);
                 config.AddAzureKeyVault(
