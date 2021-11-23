@@ -409,6 +409,44 @@
                   "properties": {}
                 }
               ]
+            },
+            {
+              "type": "eventhubs",
+              "name": "devicelinkingjobhub",
+              "apiVersion": "2017-04-01",
+              "location": "[parameters('location')]",
+              "properties": {
+                "MessageRetentionInDays": 3,
+                "partitionCount": 2
+              },
+              "dependsOn": [
+                "[concat('Microsoft.Eventhub/namespaces/', variables('namespaceName'))]"
+              ],
+              "resources": [
+                {
+                  "apiVersion": "2017-04-01",
+                  "name": "[variables('ehAuthorization')]",
+                  "type": "authorizationRules",
+                  "dependsOn": [
+                    "devicelinkingjobhub"
+                  ],
+                  "properties": {
+                    "Rights": [
+                      "Send",
+                      "Listen"
+                    ]
+                  }
+                },
+                {
+                  "apiVersion": "2017-04-01",
+                  "name": "devicelinking",
+                  "type": "consumergroups",
+                  "dependsOn": [
+                    "devicelinkingjobhub"
+                  ],
+                  "properties": {}
+                }
+              ]
             }
           ]
         }

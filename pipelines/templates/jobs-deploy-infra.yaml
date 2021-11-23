@@ -1121,6 +1121,10 @@ jobs:
             deviceTwinMirrorEvConn=$(az eventhubs eventhub authorization-rule keys list --resource-group $(resourceGroupName) --namespace-name $(eventHubName) --eventhub-name $deviceTwinMirrorEv --name $ehQueueAuthRule --query primaryConnectionString --output tsv)
             az keyvault secret set --vault-name $(keyVaultName) --name 'TenantManagerService--DeviceTwinMirrorEventHubConnectionString' --value $deviceTwinMirrorEvConn
 
+            edgeDeviceLinkingEv=$(az eventhubs eventhub list --resource-group $(resourceGroupName) --namespace-name $(eventHubName) --query "[?contains(name, 'devicelinkingjobhub')]".name --output tsv)
+            edgeDeviceLinkingEvConn=$(az eventhubs eventhub authorization-rule keys list --resource-group $(resourceGroupName) --namespace-name $(eventHubName) --eventhub-name $edgeDeviceLinkingEv --name $ehQueueAuthRule --query primaryConnectionString --output tsv)
+            az keyvault secret set --vault-name $(keyVaultName) --name 'TenantManagerService--DeviceLinkingEventHubConnectionString' --value $edgeDeviceLinkingEvConn
+
             ehActionsAuthRule='actionroutes'
             actionsEv=$(az eventhubs eventhub list --resource-group $(resourceGroupName) --namespace-name $(eventHubName) --query "[?contains(name, 'actions-eventhub')]".name --output tsv)
             actionsEvConn=$(az eventhubs eventhub authorization-rule keys list --resource-group $(resourceGroupName) --namespace-name $(eventHubName) --eventhub-name $actionsEv --name $ehActionsAuthRule --query primaryConnectionString --output tsv)
@@ -1519,6 +1523,79 @@ jobs:
            objectId=$(az functionapp identity show --name $(functionApp6Name) --resource-group $(resourceGroupName) | jq -r .principalId)
            az keyvault set-policy --name $(keyVaultName) --object-id $objectId --secret-permissions get list --key-permissions get list
 
+  - job: function6
+    displayName: Create Edge Device Linking Function
+    dependsOn:
+      - appInsights
+      - storageAccount
+      - populateKeyVault
+    variables:
+      - template: variables-deploy-infra.yaml
+        parameters:
+          subscriptionName: ${{parameters.subscriptionName}}
+          locationName: ${{parameters.locationName}}
+          environmentName: ${{parameters.environmentName}}
+          subscriptionId: ${{parameters.subscriptionId}}
+          applicationCode: ${{parameters.applicationCode}}
+          applicationShortCode: ${{parameters.applicationShortCode}}
+          environmentCategory: ${{parameters.environmentCategory}}
+    steps:
+      - checkout: self
+        displayName: Checkout repository
+
+      - template: apply-arm-tags.yaml
+        parameters:
+          environment: ${{parameters.environmentName}}
+
+      - task: AzureResourceGroupDeployment@2
+        displayName: Create Edge Device Linking Function
+        inputs:
+          azureSubscription: ${{parameters.subscriptionName}}
+          action: Create Or Update Resource Group
+          resourceGroupName: $(resourceGroupName)
+          location: ${{parameters.locationName}}
+          templateLocation: Linked artifact
+          csmFile: $(armTemplatesDirectory)/functions.json
+          csmParametersFile: $(armParametersDirectory)/functions.json
+          overrideParameters: -functionAppName ${{parameters.applicationCode}}-edgedevicelinkingfuncapp-${{parameters.environmentCategory}} -appInsightsLocation ${{parameters.appInsightsLocation}} -appInsightsName $(appInsightsName) -storageAccountName $(storageAccountName) -runtime dotnet -funcVersion ~3
+          deploymentMode: Incremental
+          deploymentName: edgedevicelinkingfuncapp-$(Build.BuildId)
+          addSpnToEnvironment: true
+
+      - template: steps-delete-oldest-deployment.yaml
+        parameters:
+          subscriptionName: ${{parameters.subscriptionName}}
+          deploymentPartialName: $(functionApp5PartialName)
+          resourceGroupName: $(resourceGroupName)
+
+      - task: AzureCLI@2
+        displayName: Set app settings for Edge Device Linking Function
+        inputs:
+          azureSubscription: ${{parameters.subscriptionName}}
+          scriptLocation: inlineScript
+          scriptType: bash
+          inlineScript: |-
+            edgedevicelinkingfn=$(functionApp6Name)
+            keyVaultSecretUri="https://${{parameters.applicationCode}}-keyvault-${{parameters.environmentCategory}}.vault.azure.net"
+            deviceLinkingEvConn="@Microsoft.KeyVault(SecretUri=$keyVaultSecretUri/secrets/TenantManagerService--DeviceLinkingEventHubConnectionString/)"
+            storageAccountConn=$(az keyvault secret show --name "Global--StorageAccountConnectionString" --vault-name $(keyVaultName) --query "value" --output tsv)
+            az functionapp config appsettings set --name $edgedevicelinkingfn \
+              --settings \
+                "DeviceLinkingEventHubConnectionString"="$deviceLinkingEvConn" \
+                "CosmosDbConnectionString"="@Microsoft.KeyVault(SecretUri=$keyVaultSecretUri/secrets/Global--CosmosDb--DocumentDbConnectionString/)" \
+                "DeviceLinkingConsumerGroup"="devicelinking" \
+              --resource-group $(resourceGroupName)
+            
+      - task: AzureCLI@2
+        displayName: Set FunctionApp Identity to keyvault Access Policy
+        inputs:
+          azureSubscription: ${{parameters.subscriptionName}}
+          scriptLocation: inlineScript
+          scriptType: bash
+          inlineScript: |-
+           objectId=$(az functionapp identity show --name $(functionApp6Name) --resource-group $(resourceGroupName) | jq -r .principalId)
+           az keyvault set-policy --name $(keyVaultName) --object-id $objectId --secret-permissions get list --key-permissions get list
+
   - job: deployFunctions
     displayName: Deploy functions
     dependsOn:
@@ -1526,7 +1603,8 @@ jobs:
       - function2
       - function3
       - function4
-      - function5      
+      - function5
+      - function6      
     pool:
       vmImage: windows-latest
     variables:
@@ -1552,6 +1630,10 @@ jobs:
         telemetry-processor:
           functionName: telemetry-processor
           appNamePartial: batchprocessorfuncapp
+          appName: ${{parameters.applicationCode}}-$(appNamePartial)-${{parameters.environmentCategory}}
+        edge-device-linking:
+          functionName: edge-device-linking
+          appNamePartial: edgedevicelinkingfuncapp
           appName: ${{parameters.applicationCode}}-$(appNamePartial)-${{parameters.environmentCategory}}
 
     steps:
