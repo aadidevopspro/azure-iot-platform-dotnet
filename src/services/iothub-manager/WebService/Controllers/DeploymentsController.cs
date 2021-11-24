@@ -126,9 +126,9 @@ namespace Mmm.Iot.IoTHubManager.WebService.Controllers
 
         [HttpPost("Modules/{id}")]
         [Authorize("ReadAll")]
-        public async Task<TwinPropertiesListApiModel> GetDeploymentImpactedEdgeModules(string id, [FromBody] string query, [FromQuery] bool isLatest = false)
+        public async Task<TwinPropertiesListApiModel> GetDeploymentImpactedEdgeModules(string id, [FromBody] string query, [FromQuery] bool isLatest = true)
         {
-            return new TwinPropertiesListApiModel(await this.deployments.GetModulesListAsync(id, query, isLatest));
+            return new TwinPropertiesListApiModel(await this.deployments.GetDeployedDeviceModulesListAsync(id, this.GetTenantId(), isLatest));
         }
 
         [HttpGet("Report/{id}")]

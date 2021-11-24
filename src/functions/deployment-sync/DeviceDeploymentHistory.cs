@@ -36,33 +36,61 @@ namespace Mmm.Iot.Functions.DeploymentSync
 
                     if (tenant != null)
                     {
+                        bool isEdgeEvent = false;
                         string eventData = Encoding.UTF8.GetString(message.Body.Array);
                         Twin twin = JsonConvert.DeserializeObject<Twin>(eventData);
                         TwinServiceModel twinServiceModel = new TwinServiceModel(twin);
-                        Dictionary<string, JToken> reportedProperties = twinServiceModel.ReportedProperties;
-                        var json = JToken.Parse(JsonConvert.SerializeObject(reportedProperties));
-                        var fieldsCollector = new JsonFieldsCollector(json);
-                        var fields = fieldsCollector.GetAllFields();
-                        bool isFirmWareUpdate = false;
-                        foreach (var field in fields)
+                        message.SystemProperties.TryGetValue("iothub-connection-module-id", out object moduleId);
+                        if (moduleId != null && !string.IsNullOrEmpty(moduleId.ToString()))
                         {
-                            isFirmWareUpdate = field.Key.Contains(FIRMWARE, StringComparison.OrdinalIgnoreCase);
-                            if (isFirmWareUpdate)
-                            {
-                                break;
-                            }
+                            isEdgeEvent = true;
                         }
 
-                        if (isFirmWareUpdate)
+                        if (!isEdgeEvent)
+                        {
+                            Dictionary<string, JToken> reportedProperties = twinServiceModel.ReportedProperties;
+                            var json = JToken.Parse(JsonConvert.SerializeObject(reportedProperties));
+                            var fieldsCollector = new JsonFieldsCollector(json);
+                            var fields = fieldsCollector.GetAllFields();
+                            bool isFirmWareUpdate = false;
+                            foreach (var field in fields)
+                            {
+                                isFirmWareUpdate = field.Key.Contains(FIRMWARE, StringComparison.OrdinalIgnoreCase);
+                                if (isFirmWareUpdate)
+                                {
+                                    break;
+                                }
+                            }
+
+                            if (isFirmWareUpdate)
+                            {
+                                message.SystemProperties.TryGetValue("iothub-connection-device-id", out object deviceId);
+                                var newTwin = await TenantConnectionHelper.GetRegistry(Convert.ToString(tenant)).GetTwinAsync(deviceId.ToString());
+                                var appliedConfigurations = newTwin.Configurations.Where(c => c.Value.Status.Equals(ConfigurationStatus.Applied));
+                                if (appliedConfigurations != null && appliedConfigurations.Count() > 0)
+                                {
+                                    DeploymentSyncService service = new DeploymentSyncService();
+                                    var appliedDeploymentFromStorage = service.GetDeploymentsByIdFromStorage(Convert.ToString(tenant), appliedConfigurations.Select(ac => ac.Key).ToArray()).Result.FirstOrDefault();
+                                    await service.SaveDeploymentHistory(Convert.ToString(tenant), appliedDeploymentFromStorage, newTwin);
+                                }
+                            }
+                        }
+                        else
                         {
                             message.SystemProperties.TryGetValue("iothub-connection-device-id", out object deviceId);
-                            var newTwin = await TenantConnectionHelper.GetRegistry(Convert.ToString(tenant)).GetTwinAsync(deviceId.ToString());
-                            var appliedConfigurations = newTwin.Configurations.Where(c => c.Value.Status.Equals(ConfigurationStatus.Applied));
-                            if (appliedConfigurations != null && appliedConfigurations.Count() > 0)
+                            twinServiceModel.ModuleId = (string)moduleId;
+                            twinServiceModel.DeviceId = (string)deviceId;
+                            Dictionary<string, JToken> reportedProperties = twinServiceModel.ReportedProperties;
+                            if (twinServiceModel.ModuleId == "$edgeAgent" && reportedProperties != null && reportedProperties.Count > 0)
                             {
-                                DeploymentSyncService service = new DeploymentSyncService();
-                                var appliedDeploymentFromStorage = service.GetDeploymentsByIdFromStorage(Convert.ToString(tenant), appliedConfigurations.Select(ac => ac.Key).ToArray()).Result.FirstOrDefault();
-                                await service.SaveDeploymentHistory(Convert.ToString(tenant), appliedDeploymentFromStorage, newTwin);
+                                var newTwin = await TenantConnectionHelper.GetRegistry(Convert.ToString(tenant)).GetTwinAsync(deviceId.ToString(), moduleId.ToString());
+                                var appliedConfigurations = newTwin.Configurations.Where(c => c.Value.Status.Equals(ConfigurationStatus.Applied));
+                                if (appliedConfigurations != null && appliedConfigurations.Count() > 0)
+                                {
+                                    DeploymentSyncService service = new DeploymentSyncService();
+                                    var appliedDeploymentFromStorage = service.GetDeploymentsByIdFromStorage(Convert.ToString(tenant), appliedConfigurations.Select(ac => ac.Key).ToArray()).Result.FirstOrDefault();
+                                    await service.SaveDeploymentHistory(Convert.ToString(tenant), appliedDeploymentFromStorage, newTwin);
+                                }
                             }
                         }
                     }

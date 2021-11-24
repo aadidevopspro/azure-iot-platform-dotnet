@@ -505,6 +505,24 @@ namespace Mmm.Iot.IoTHubManager.Services
             return deployments.ToDictionary(dep => dep.Id, dep => dep.Name);
         }
 
+        public async Task<TwinServiceListModel> GetDeployedDeviceModulesListAsync(string deploymentId, string tenantId, bool isLatest)
+        {
+            TwinServiceListModel moduletwins = null;
+
+            var deploymentDetails = await this.GetAsync(deploymentId, true, isLatest);
+
+            List<string> deviceIds = deploymentDetails?.DeploymentMetrics?.DeviceStatuses?.Keys?.ToList();
+
+            var devices = await this.GetDeviceListForEdgeAsync(deploymentId, deviceIds, tenantId);
+
+            if (devices != null && devices.Items != null && devices.Items.Count > 0)
+            {
+                moduletwins = new TwinServiceListModel(devices.Items.Select(i => i.Twin));
+            }
+
+            return moduletwins;
+        }
+
         private async Task<DeviceServiceListModel> GetDeviceListAsync(string deploymentId, List<string> deviceIds, string tenantId)
         {
             string query = string.Empty;
@@ -1099,6 +1117,90 @@ namespace Mmm.Iot.IoTHubManager.Services
             }
 
             return output;
+        }
+
+        private async Task<DeviceServiceListModel> GetDeviceListForEdgeAsync(string deploymentId, List<string> deviceIds, string tenantId)
+        {
+            string query = string.Empty;
+            int iotHublimit = 500;
+            string deviceListValue = string.Empty;
+
+            var deploymentDeviceTask = this.GetDeploymentDeviceModulesAsync(deploymentId, tenantId);
+
+            DeviceServiceListModel allDevices = new DeviceServiceListModel(new List<DeviceServiceModel>(), null);
+
+            if (deviceIds?.Count > 0)
+            {
+                for (int i = 0; i < (deviceIds.Count / iotHublimit) + 1; i++)
+                {
+                    if (i != 0 && (deviceIds.Count % (i * iotHublimit)) <= 0)
+                    {
+                        break;
+                    }
+
+                    List<string> batchDeviceIds = deviceIds.Skip(i * iotHublimit).Take(iotHublimit).ToList();
+                    if (batchDeviceIds != null && batchDeviceIds.Count > 0)
+                    {
+                        deviceListValue = string.Join(",", batchDeviceIds.Select(p => $"'{p}'"));
+                    }
+
+                    query = $" deviceId IN [{deviceListValue}]";
+
+                    var devices = await this.devices.GetListAsync(query, null);
+
+                    allDevices.Items.AddRange(devices.Items);
+
+                    while (!string.IsNullOrWhiteSpace(devices.ContinuationToken))
+                    {
+                        devices = await this.devices.GetListAsync(query, null);
+                        allDevices.Items.AddRange(devices.Items);
+                    }
+                }
+
+                var deploymentDeviceHistory = await deploymentDeviceTask;
+                if (deploymentDeviceHistory != null && deploymentDeviceHistory.Items.Count > 0)
+                {
+                    Parallel.ForEach(allDevices.Items, item =>
+                    {
+                        var twin = deploymentDeviceHistory.Items.FirstOrDefault(i => i.DeviceId == item.Id)?.Twin;
+
+                        if (twin != null)
+                        {
+                            item.Twin = twin;
+                        }
+
+                        item.PreviousTwin = deploymentDeviceHistory.Items.FirstOrDefault(i => i.DeviceId == item.Id)?.PreviousFirmwareTwin;
+                    });
+                }
+            }
+
+            return allDevices;
+        }
+
+        private async Task<DeploymentHistoryListModel> GetDeploymentDeviceModulesAsync(string deploymentId, string tenantId)
+        {
+            var sql = QueryBuilder.GetDeploymentDeviceModulesDocumentsSqlByKey("Key", deploymentId);
+            FeedOptions queryOptions = new FeedOptions
+            {
+                EnableCrossPartitionQuery = true,
+                EnableScanInQuery = true,
+            };
+            List<Document> docs = await this.storageClient.QueryDocumentsAsync(
+                this.DocumentDbDatabaseId,
+                $"{this.DocumentDataType}-{tenantId}",
+                queryOptions,
+                sql,
+                0,
+                10000);
+
+            return docs == null
+                 ? new DeploymentHistoryListModel(null)
+                 : new DeploymentHistoryListModel(docs.Select(doc => new ValueServiceModel(doc))
+                .GroupBy(x => x.CollectionId)
+                .Select(y => y.ToList()
+                              .FirstOrDefault())
+                .Select(x => JsonConvert.DeserializeObject<DeploymentHistoryModel>(x.Data))
+                    .ToList());
         }
     }
 }

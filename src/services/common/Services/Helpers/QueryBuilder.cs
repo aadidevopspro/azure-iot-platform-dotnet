@@ -709,6 +709,25 @@ namespace Mmm.Iot.Common.Services.Helpers
             return (queryBuilder.ToString(), queryParameterCollection);
         }
 
+        public static SqlQuerySpec GetDeploymentDeviceModulesDocumentsSqlByKey(string key, string value)
+        {
+            var sqlParameterCollection = new SqlParameterCollection();
+            ValidateInput(ref key);
+            ValidateInput(ref value);
+
+            var queryBuilder = new StringBuilder("SELECT * FROM c");
+
+            if (!string.IsNullOrEmpty(value))
+            {
+                queryBuilder.Append($" WHERE c[@keyProperty] = @value ");
+                sqlParameterCollection.Add(new SqlParameter { Name = "@keyProperty", Value = key });
+                sqlParameterCollection.Add(new SqlParameter { Name = "@value", Value = value });
+            }
+
+            queryBuilder.Append(" AND c[\"CollectionId\"] like 'deviceModuleDeploymentHistory-%' ORDER BY c[\"_ts\"] DESC");
+            return new SqlQuerySpec(queryBuilder.ToString(), sqlParameterCollection);
+        }
+
         // Check illegal characters in input
         private static void ValidateInput(ref string input)
         {

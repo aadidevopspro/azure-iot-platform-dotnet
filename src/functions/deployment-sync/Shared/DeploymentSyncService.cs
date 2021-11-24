@@ -37,6 +37,7 @@ namespace Mmm.Iot.Functions.DeploymentSync.Shared
         private const string DeploymentEdgeModulePropertiesCollection = "deploymentedgemodules-{0}";
         private const string DeploymentModuleHistoryPropertiesCollection = "deploymentModulesHistory-{0}_{1}";
         private const string DeploymentHistoryCollection = "deviceDeploymentHistory-{0}";
+        private const string ModuleDeploymentHistoryCollection = "deviceModuleDeploymentHistory-{0}";
 
         private FeedOptions DefaultQueryOptions => new FeedOptions
         {
@@ -183,11 +184,19 @@ namespace Mmm.Iot.Functions.DeploymentSync.Shared
             }
         }
 
-        public async Task SaveDeploymentHistory(string tenantId, DeploymentServiceModel deploymentModel, Twin deviceTwin)
+        public async Task SaveDeploymentHistory(string tenantId, DeploymentServiceModel deploymentModel, Twin deviceTwin, bool isEdge = false)
         {
             CosmosOperations storageClient = await CosmosOperations.GetClientAsync();
+            TwinServiceModel previousTwin = null;
+            if (isEdge)
+            {
+                previousTwin = await this.GetPreviousFirmwareReportedProperties(tenantId, deviceTwin.DeviceId, isEdge);
+            }
+            else
+            {
+                previousTwin = await this.GetPreviousFirmwareReportedProperties(tenantId, deviceTwin.DeviceId);
+            }
 
-            TwinServiceModel previousTwin = await this.GetPreviousFirmwareReportedProperties(tenantId, deviceTwin.DeviceId);
             var deviceTwinServiceModel = new TwinServiceModel(deviceTwin);
             DeploymentHistoryModel modelToSave = new DeploymentHistoryModel
             {
@@ -206,8 +215,14 @@ namespace Mmm.Iot.Functions.DeploymentSync.Shared
                                         {
                                             NullValueHandling = NullValueHandling.Ignore,
                                         });
-
-            await storageClient.SaveDocumentAsync(string.Format(DeploymentHistoryCollection, deviceTwin.DeviceId), deploymentModel.Id, new ValueServiceModel() { Data = value }, this.GenerateCollectionLink(tenantId), Guid.NewGuid());
+            if (isEdge)
+            {
+                await storageClient.SaveDocumentAsync(string.Format(ModuleDeploymentHistoryCollection, deviceTwin.DeviceId), deploymentModel.Id, new ValueServiceModel() { Data = value }, this.GenerateCollectionLink(tenantId), Guid.NewGuid());
+            }
+            else
+            {
+                await storageClient.SaveDocumentAsync(string.Format(DeploymentHistoryCollection, deviceTwin.DeviceId), deploymentModel.Id, new ValueServiceModel() { Data = value }, this.GenerateCollectionLink(tenantId), Guid.NewGuid());
+            }
         }
 
         public async Task SaveDeploymentFromHub(string tenantId, DeploymentServiceModel deploymentModel, List<TwinServiceModel> deviceTwins)
@@ -238,9 +253,17 @@ namespace Mmm.Iot.Functions.DeploymentSync.Shared
             }
         }
 
-        private async Task<TwinServiceModel> GetPreviousFirmwareReportedProperties(string tenantId, string deviceId)
+        private async Task<TwinServiceModel> GetPreviousFirmwareReportedProperties(string tenantId, string deviceId, bool isEdge = false)
         {
-            var sql = QueryBuilder.GetDeploymentDeviceDocumentsSqlByKey("CollectionId", $"deviceDeploymentHistory-{deviceId}");
+            SqlQuerySpec sql;
+            if (isEdge)
+            {
+                sql = QueryBuilder.GetDeploymentDeviceModuleDocumentsSqlByKey("CollectionId", $"deviceModuleDeploymentHistory-{deviceId}");
+            }
+            else
+            {
+                sql = QueryBuilder.GetDeploymentDeviceDocumentsSqlByKey("CollectionId", $"deviceDeploymentHistory-{deviceId}");
+            }
 
             List<Document> docs = new List<Document>();
 
