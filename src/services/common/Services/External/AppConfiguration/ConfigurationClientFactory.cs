@@ -2,8 +2,8 @@
 // Copyright (c) 3M. All rights reserved.
 // </copyright>
 using System;
-using Azure.Identity;
 using Azure.Data.AppConfiguration;
+using Azure.Identity;
 using Mmm.Iot.Common.Services.Config;
 
 namespace Mmm.Iot.Common.Services.External.AppConfiguration

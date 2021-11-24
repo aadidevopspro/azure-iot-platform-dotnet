@@ -3,10 +3,10 @@
 // </copyright>
 
 using System;
-using Azure.Identity;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Azure.Identity;
 using Azure.Data.AppConfiguration;
 using Mmm.Iot.Common.Services.Config;
 using Mmm.Iot.Common.Services.Models;
