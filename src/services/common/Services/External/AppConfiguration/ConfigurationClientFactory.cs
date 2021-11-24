@@ -1,7 +1,8 @@
 // <copyright file="ConfigurationClientFactory.cs" company="3M">
 // Copyright (c) 3M. All rights reserved.
 // </copyright>
-
+using System;
+using Azure.Identity;
 using Azure.Data.AppConfiguration;
 using Mmm.Iot.Common.Services.Config;
 

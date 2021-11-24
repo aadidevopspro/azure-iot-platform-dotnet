@@ -3,6 +3,7 @@
 // </copyright>
 
 using System;
+using Azure.Identity;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
