@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft. All rights reserved.
 
 import React, { Fragment } from "react";
-import { IoTHubManagerService } from "services";
 import { NavLink } from "react-router-dom";
 import { Route, Switch } from "react-router-dom";
 import { LinkedComponent, svgs } from "utilities";
@@ -15,6 +14,8 @@ import {
 } from "components/shared";
 import { ModuleDetailsContainer } from "../flyouts/moduleDetails/moduleDetails.container";
 import { EdgeDeviceInfoDashboard } from "./edgeDeviceInfoDashboard";
+import { IoTHubManagerService } from "services";
+import { IdentityGatewayService } from "services";
 const classnames = require("classnames/bind");
 const css = classnames.bind(require("./edgeDeviceDetails.module.scss"));
 
@@ -28,11 +29,20 @@ export class EdgeDeviceDetails extends LinkedComponent {
             error: undefined,
             deviceId: props.match.params.deviceId,
             moduleId: props.location.state.moduleId,
+            isGrafanaEnabled: false,
         };
     }
 
     componentDidMount() {
         this.fetchEdgeDeviceStatus(this.state.deviceId);
+    }
+
+    UNSAFE_componentWillMount() {
+        IdentityGatewayService.getDashboardMode().subscribe((value) => {
+            this.setState({
+                isGrafanaEnabled: (value && value.toUpperCase()) === "TRUE",
+            });
+        });
     }
 
     fetchEdgeDeviceStatus = (deviceId) => {
@@ -57,8 +67,8 @@ export class EdgeDeviceDetails extends LinkedComponent {
     };
 
     render() {
-        const { t } = this.props;
-        const { error } = this.state;
+        const { t, edgeGrafanaUrl, grafanaOrgId } = this.props;
+        const { error, isGrafanaEnabled } = this.state;
         const isEdgeDeviceActive =
                 this.state.edgeDeviceStatus === 200 ? true : false,
             edgeDeviceStatusPending = this.state.edgeDeviceStatusPending;
@@ -95,15 +105,17 @@ export class EdgeDeviceDetails extends LinkedComponent {
                                         "edgeDeviceDetails.moduleInfo"
                                     )}
                                 </NavLink>
-                                <NavLink
-                                    to={`/devices/deviceinfo/${this.state.deviceId}`}
-                                    className={css("tab")}
-                                    activeClassName={css("active")}
-                                >
-                                    {this.props.t(
-                                        "edgeDeviceDetails.deviceInfo"
-                                    )}
-                                </NavLink>
+                                {isGrafanaEnabled && (
+                                    <NavLink
+                                        to={`/devices/deviceinfo/${this.state.deviceId}`}
+                                        className={css("tab")}
+                                        activeClassName={css("active")}
+                                    >
+                                        {this.props.t(
+                                            "edgeDeviceDetails.deviceInfo"
+                                        )}
+                                    </NavLink>
+                                )}
                             </div>
                             <div className={css("grid-container")}>
                                 <Switch>
@@ -130,6 +142,8 @@ export class EdgeDeviceDetails extends LinkedComponent {
                                             <EdgeDeviceInfoDashboard
                                                 deviceId={this.state.deviceId}
                                                 t={this.props.t}
+                                                edgeGrafanaUrl={edgeGrafanaUrl}
+                                                grafanaOrgId={grafanaOrgId}
                                             />
                                         )}
                                     />

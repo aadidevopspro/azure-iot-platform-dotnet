@@ -92,4 +92,11 @@ export class TenantService {
             `${TENANT_MANAGER_ENDPOINT}tenant/GrafanaOrgId`
         ).pipe(map((value) => value));
     }
+
+    /** Returns the configured grafana url for Edge of a tenant */
+    static getEdgeGrafanaUrl() {
+        return HttpClient.get(
+            `${TENANT_MANAGER_ENDPOINT}tenant/EdgeGrafanaUrl`
+        ).pipe(map((value) => value));
+    }
 }

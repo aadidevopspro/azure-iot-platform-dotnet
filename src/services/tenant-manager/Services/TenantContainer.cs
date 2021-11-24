@@ -68,6 +68,7 @@ namespace Mmm.Iot.TenantManager.Services
         private string eventHubNamespaceFormat = "eventhub-{0}";
         private string grafanaUrlFormat = "tenant:{0}:grafanaUrl";
         private string grafanaOrgFormat = "tenant:{0}:grafanaOrgId";
+        private string edgeGrafanaUrlFormat = "tenant:{0}:edgeGrafanaUrl";
 
         public TenantContainer(
             ILogger<TenantContainer> logger,
@@ -523,6 +524,19 @@ namespace Mmm.Iot.TenantManager.Services
             if (this.config.Global.LoadGrafanaDashboard)
             {
                 string grafanaUrlKey = string.Format(this.grafanaOrgFormat, tenantId);
+                return this.appConfigClient.GetValue(grafanaUrlKey);
+            }
+            else
+            {
+                return string.Empty;
+            }
+        }
+
+        public string GetEdgeGrafanaUrl(string tenantId)
+        {
+            if (this.config.Global.LoadGrafanaDashboard)
+            {
+                string grafanaUrlKey = string.Format(this.edgeGrafanaUrlFormat, tenantId);
                 return this.appConfigClient.GetValue(grafanaUrlKey);
             }
             else

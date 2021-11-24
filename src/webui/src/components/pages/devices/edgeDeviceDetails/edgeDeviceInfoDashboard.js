@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft. All rights reserved.
 
 import React, { Component, Fragment } from "react";
+import Config from "app.config";
 export const getIntervalParams = (timeInterval) => {
     switch (timeInterval) {
         case "PT15M":
@@ -34,12 +35,13 @@ export class EdgeDeviceInfoDashboard extends Component {
 
     render() {
         // const { t } = this.props;
-        const { deviceId } = this.state;
+        const { deviceId, from } = this.state;
+        const { grafanaOrgId, edgeGrafanaUrl } = this.props;
         return (
             <Fragment>
                 <iframe
                     title="Dashboard"
-                    src={`http://localhost:3000/grafana/d/SsCPi9v7z/edgedashboard?orgId=50&from=now-1h&to=now&var-deviceId=${deviceId}&theme=light&refresh=10s&kiosk`}
+                    src={`${Config.serviceUrls.grafana}d/${edgeGrafanaUrl}?from=${from}&to=now&orgId=${grafanaOrgId}&var-deviceId=${deviceId}&theme=light&refresh=10s&kiosk`}
                     width="100%"
                     height="100%"
                     frameborder="0"

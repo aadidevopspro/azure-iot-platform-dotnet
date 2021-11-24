@@ -24,5 +24,7 @@ namespace Mmm.Iot.TenantManager.Services
         string GetGrafanaUrl(string tenantId);
 
         string GetGrafanaOrgId(string tenantId);
+
+        string GetEdgeGrafanaUrl(string tenantId);
     }
 }

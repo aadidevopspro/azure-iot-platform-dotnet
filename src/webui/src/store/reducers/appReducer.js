@@ -70,6 +70,7 @@ export const epics = createEpicScenario({
             epics.actions.fetchAlerting(),
             epics.actions.fetchGrafanaUrl(),
             epics.actions.fetchGrafanaOrgId(),
+            epics.actions.fetchEdgeGrafanaUrl(),
         ],
     },
 
@@ -330,6 +331,17 @@ export const epics = createEpicScenario({
             ),
     },
 
+    fetchEdgeGrafanaUrl: {
+        type: "APP_FETCH_EDGE_GRAFANA_URL",
+        epic: (fromAction) =>
+            TenantService.getGrafanaUrl().pipe(
+                map(
+                    toActionCreator(redux.actions.getEdgeGrafanaUrl, fromAction)
+                ),
+                catchError(handleError(fromAction))
+            ),
+    },
+
     fetchGrafanaOrgId: {
         type: "APP_FETCH_GRAFANA_ORG",
         epic: (fromAction) =>
@@ -419,6 +431,7 @@ const deviceGroupSchema = new schema.Entity("deviceGroups"),
         version: undefined,
         releaseNotesUrl: undefined,
         grafanaUrl: undefined,
+        edgeGrafanaUrl: undefined,
         grafanaOrgId: undefined,
         timeSeriesExplorerUrl: undefined,
         logo: svgs.mmmLogo,
@@ -610,6 +623,12 @@ const deviceGroupSchema = new schema.Entity("deviceGroups"),
                 $set: payload,
             },
         }),
+    edgeGrafanaUrlReducer = (state, { payload }) =>
+        update(state, {
+            edgeGrafanaUrl: {
+                $set: payload,
+            },
+        }),
     grafanaOrgIdReducer = (state, { payload }) =>
         update(state, {
             grafanaOrgId: {
@@ -746,6 +765,10 @@ export const redux = createReducerScenario({
     getGrafanaUrl: {
         type: "APP_GET_GRAfANA_URL",
         reducer: grafanaUrlReducer,
+    },
+    getEdgeGrafanaUrl: {
+        type: "APP_GET_EDGE_GRAfANA_URL",
+        reducer: edgeGrafanaUrlReducer,
     },
     getGrafanaOrgId: {
         type: "APP_GET_GRAfANA_ORG",
@@ -910,5 +933,6 @@ export const getApplicationPermissionsAssigned = (state) =>
     getAppReducer(state).applicationPermissionsAssigned;
 
 export const getUserCurrentTenant = (state) => getAppReducer(state).user.tenant;
+export const getEdgeGrafanaUrl = (state) => getAppReducer(state).edgeGrafanaUrl;
 
 // ========================= Selectors - END
