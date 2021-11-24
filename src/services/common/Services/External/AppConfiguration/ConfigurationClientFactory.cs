@@ -18,7 +18,14 @@ namespace Mmm.Iot.Common.Services.External.AppConfiguration
 
         public ConfigurationClient Create()
         {
-            return new ConfigurationClient(this.config.AppConfigurationConnectionString);
+            if (!string.IsNullOrEmpty(this.config.AppConfigurationConnectionString))
+            {
+              return new ConfigurationClient(this.config.AppConfigurationConnectionString);
+            }
+            else
+            {
+              return new ConfigurationClient(new Uri(this.config.AppConfigEndpoint), new ManagedIdentityCredential(this.config.ManagedIdentityClientId));
+            }
         }
     }
 }
