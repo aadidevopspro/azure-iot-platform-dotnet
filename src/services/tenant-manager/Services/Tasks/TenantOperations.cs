@@ -35,6 +35,7 @@ namespace Mmm.Iot.TenantManager.Services.Tasks
         private const string GrafanaAPIKeyNameFormat = "Grafana--{0}--APIKey";
         private const string GrafanaUrlNameFormat = "tenant:{0}:grafanaUrl";
         private const string GrafanaPassword = "admin";
+        private const string GrafanaEdgeDashboardUrlFormat = "tenant:{0}:edgeGrafanaUrl";
         private readonly CancellationTokenSource stoppingCts = new CancellationTokenSource();
         private readonly IIdentityGatewayClient identityGatewayClient;
         private Task executingTask;
@@ -313,6 +314,9 @@ namespace Mmm.Iot.TenantManager.Services.Tasks
                                     string adminDashboardName = $"{tenantIdSubstring}-AdminDashboard";
                                     string adminDashboardUid = $"{tenantIdSubstring}-adm";
 
+                                    string edgeDashboardName = $"{tenantIdSubstring}-EdgeDashboard";
+                                    string edgeDashboardUid = $"{tenantIdSubstring}-edge";
+
                                     var tenant = await this.tableStorageClient.RetrieveAsync<TenantModel>(
                                         "tenant",
                                         item.TenantId.Substring(0, 1),
@@ -377,6 +381,24 @@ namespace Mmm.Iot.TenantManager.Services.Tasks
                                     await this.grafanaClient.CreateAndUpdateDashboard(template, apiKey);
 
                                     await this.appConfigurationClient.SetValueAsync(string.Format(GrafanaUrlNameFormat, item.TenantId), $"{mainDashboardUid}/{mainDashboardName}");
+
+                                    Console.WriteLine($"Adding Edge Device dashboard to Grafana Organization:{orgId}.");
+
+                                    reader = new StreamReader(assembly.GetManifestResourceStream("grafana-edge-dashboard.json"));
+                                    template = await reader.ReadToEndAsync();
+                                    template = string.Format(
+                                        template,
+                                        this.config.Global.SubscriptionId,
+                                        this.config.Global.ResourceGroup,
+                                        this.config.Global.LogAnalytics.Name,
+                                        this.config.ExternalDependencies.GrafanaUrl,
+                                        edgeDashboardUid,
+                                        edgeDashboardName,
+                                        orgId);
+
+                                    await this.grafanaClient.CreateAndUpdateDashboard(template, apiKey);
+
+                                    await this.appConfigurationClient.SetValueAsync(string.Format(GrafanaEdgeDashboardUrlFormat, item.TenantId), $"{edgeDashboardUid}/{edgeDashboardName}");
                                     await this.tableStorageClient.DeleteAsync(TableName, item);
                                 }
 
@@ -391,6 +413,7 @@ namespace Mmm.Iot.TenantManager.Services.Tasks
                                     {
                                         await this.appConfigurationClient.DeleteKeyAsync(string.Format(GrafanaUrlNameFormat, item.TenantId));
                                         await this.appConfigurationClient.DeleteKeyAsync(string.Format(GrafanaOrgIdNameFormat, item.TenantId));
+                                        await this.appConfigurationClient.DeleteKeyAsync(string.Format(GrafanaEdgeDashboardUrlFormat, item.TenantId));
                                         await this.tableStorageClient.DeleteAsync(TableName, item);
                                     }
                                 }

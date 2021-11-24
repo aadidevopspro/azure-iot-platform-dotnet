@@ -1,0 +1,1160 @@
+{{"dashboard": {{
+        "annotations": {{
+            "list": [
+                {{
+                    "builtIn": 1,
+                    "datasource": "-- Grafana --",
+                    "enable": true,
+                    "hide": true,
+                    "iconColor": "rgba(0, 211, 255, 1)",
+                    "name": "Annotations & Alerts",
+                    "target": {{
+                        "limit": 100,
+                        "matchAny": false,
+                        "tags": [],
+                        "type": "dashboard"
+                    }},
+                    "type": "dashboard"
+                }}
+            ]
+        }},
+        "editable": true,
+        "gnetId": null,
+        "graphTooltip": 0,
+        "links": [],
+        "panels": [
+            {{
+                "collapsed": false,
+                "datasource": null,
+                "gridPos": {{
+                    "h": 1,
+                    "w": 24,
+                    "x": 0,
+                    "y": 0
+                }},
+                "id": 21,
+                "panels": [],
+                "title": "Host Info",
+                "type": "row"
+            }},
+            {{
+                "datasource": null,
+                "gridPos": {{
+                    "h": 8,
+                    "w": 5,
+                    "x": 0,
+                    "y": 1
+                }},
+                "id": 9,
+                "options": {{
+                    "content": "**OS info<br>**\n${{hostInfoOs}}<br>\n${{hostInfoOstype}} ${{hostInfoArch}}<br>\n\n**IoT Edge daemon version<br>**\n${{hostInfoEdgedVer}}<br>\n\n**Docker daemon version<br>**\n${{hostInfoDockerVer}}<br>\n\n**# CPUs<br>**\n${{hostInfoNumCpus}}<br>\n\n\n\n",
+                    "mode": "markdown"
+                }},
+                "pluginVersion": "8.1.1",
+                "targets": [
+                    {{
+                        "queryType": "randomWalk",
+                        "refId": "A"
+                    }}
+                ],
+                "title": "Edge Device Info",
+                "type": "text"
+            }},
+            {{
+                "datasource": "Azure Monitor",
+                "fieldConfig": {{
+                    "defaults": {{
+                        "color": {{
+                            "mode": "palette-classic"
+                        }},
+                        "custom": {{
+                            "axisLabel": "MiB",
+                            "axisPlacement": "auto",
+                            "barAlignment": 0,
+                            "drawStyle": "line",
+                            "fillOpacity": 0,
+                            "gradientMode": "none",
+                            "hideFrom": {{
+                                "legend": false,
+                                "tooltip": false,
+                                "viz": false
+                            }},
+                            "lineInterpolation": "smooth",
+                            "lineStyle": {{
+                                "fill": "solid"
+                            }},
+                            "lineWidth": 1,
+                            "pointSize": 5,
+                            "scaleDistribution": {{
+                                "type": "linear"
+                            }},
+                            "showPoints": "auto",
+                            "spanNulls": true,
+                            "stacking": {{
+                                "group": "A",
+                                "mode": "none"
+                            }},
+                            "thresholdsStyle": {{
+                                "mode": "off"
+                            }}
+                        }},
+                        "mappings": [],
+                        "thresholds": {{
+                            "mode": "absolute",
+                            "steps": [
+                                {{
+                                    "color": "green",
+                                    "value": null
+                                }},
+                                {{
+                                    "color": "red",
+                                    "value": 80
+                                }}
+                            ]
+                        }},
+                        "unit": "decmbytes"
+                    }},
+                    "overrides": [
+                        {{
+                            "__systemRef": "hideSeriesFrom",
+                            "matcher": {{
+                                "id": "byNames",
+                                "options": {{
+                                    "mode": "exclude",
+                                    "names": [
+                                        "MemoryUsage"
+                                    ],
+                                    "prefix": "All except:",
+                                    "readOnly": true
+                                }}
+                            }},
+                            "properties": [
+                                {{
+                                    "id": "custom.hideFrom",
+                                    "value": {{
+                                        "legend": false,
+                                        "tooltip": false,
+                                        "viz": true
+                                    }}
+                                }}
+                            ]
+                        }}
+                    ]
+                }},
+                "gridPos": {{
+                    "h": 8,
+                    "w": 9,
+                    "x": 5,
+                    "y": 1
+                }},
+                "id": 7,
+                "options": {{
+                    "legend": {{
+                        "calcs": [
+                            "mean"
+                        ],
+                        "displayMode": "list",
+                        "placement": "bottom"
+                    }},
+                    "tooltip": {{
+                        "mode": "single"
+                    }}
+                }},
+                "targets": [
+                    {{
+                        "appInsights": {{
+                            "dimension": [],
+                            "metricName": "select",
+                            "timeGrain": "auto"
+                        }},
+                        "azureLogAnalytics": {{
+                            "query": "InsightsMetrics\n| where $__timeFilter(TimeGenerated)\n| where Name == \"edgeAgent_used_memory_bytes\" and Tags contains \"host\"\n| extend dimensions=parse_json(Tags)\n| extend device = tostring(dimensions.edge_device)\n| where device == \"$deviceId\"\n| extend value = tolong(Val)/(1024*1024)\n| project MemoryUsage=value, TimeGenerated\n| order by TimeGenerated",
+                            "resource": "/subscriptions/{0}/resourcegroups/{1}/providers/microsoft.operationalinsights/workspaces/{2}",
+                            "resultFormat": "time_series",
+                            "workspace": "/subscriptions/{0}/resourcegroups/{1}/providers/microsoft.operationalinsights/workspaces/{2}"
+                        }},
+                        "azureMonitor": {{
+                            "aggOptions": [],
+                            "dimensionFilter": "*",
+                            "dimensionFilters": [],
+                            "timeGrain": "auto",
+                            "timeGrains": [],
+                            "top": "10"
+                        }},
+                        "azureResourceGraph": {{
+                            "resultFormat": "table"
+                        }},
+                        "insightsAnalytics": {{
+                            "query": "",
+                            "resultFormat": "time_series"
+                        }},
+                        "queryType": "Azure Log Analytics",
+                        "refId": "A",
+                        "subscription": "{0}",
+                        "subscriptions": [
+                            "{0}"
+                        ]
+                    }}
+                ],
+                "title": "Host Memory Usage",
+                "type": "timeseries"
+            }},
+            {{
+                "datasource": "Azure Monitor",
+                "fieldConfig": {{
+                    "defaults": {{
+                        "color": {{
+                            "mode": "palette-classic"
+                        }},
+                        "custom": {{
+                            "axisLabel": "",
+                            "axisPlacement": "auto",
+                            "barAlignment": 0,
+                            "drawStyle": "line",
+                            "fillOpacity": 0,
+                            "gradientMode": "none",
+                            "hideFrom": {{
+                                "legend": false,
+                                "tooltip": false,
+                                "viz": false
+                            }},
+                            "lineInterpolation": "smooth",
+                            "lineStyle": {{
+                                "fill": "solid"
+                            }},
+                            "lineWidth": 1,
+                            "pointSize": 5,
+                            "scaleDistribution": {{
+                                "type": "linear"
+                            }},
+                            "showPoints": "auto",
+                            "spanNulls": true,
+                            "stacking": {{
+                                "group": "A",
+                                "mode": "none"
+                            }},
+                            "thresholdsStyle": {{
+                                "mode": "off"
+                            }}
+                        }},
+                        "mappings": [],
+                        "thresholds": {{
+                            "mode": "absolute",
+                            "steps": [
+                                {{
+                                    "color": "green",
+                                    "value": null
+                                }},
+                                {{
+                                    "color": "red",
+                                    "value": 80
+                                }}
+                            ]
+                        }},
+                        "unit": "percent"
+                    }},
+                    "overrides": [
+                        {{
+                            "__systemRef": "hideSeriesFrom",
+                            "matcher": {{
+                                "id": "byNames",
+                                "options": {{
+                                    "mode": "exclude",
+                                    "names": [
+                                        "CPU"
+                                    ],
+                                    "prefix": "All except:",
+                                    "readOnly": true
+                                }}
+                            }},
+                            "properties": [
+                                {{
+                                    "id": "custom.hideFrom",
+                                    "value": {{
+                                        "legend": false,
+                                        "tooltip": false,
+                                        "viz": true
+                                    }}
+                                }}
+                            ]
+                        }}
+                    ]
+                }},
+                "gridPos": {{
+                    "h": 8,
+                    "w": 10,
+                    "x": 14,
+                    "y": 1
+                }},
+                "id": 22,
+                "options": {{
+                    "legend": {{
+                        "calcs": [
+                            "mean"
+                        ],
+                        "displayMode": "list",
+                        "placement": "bottom"
+                    }},
+                    "tooltip": {{
+                        "mode": "single"
+                    }}
+                }},
+                "targets": [
+                    {{
+                        "appInsights": {{
+                            "dimension": [],
+                            "metricName": "select",
+                            "timeGrain": "auto"
+                        }},
+                        "azureLogAnalytics": {{
+                            "query": "InsightsMetrics\n| where $__timeFilter(TimeGenerated)\n| where Name == \"edgeAgent_used_cpu_percent\" and Tags contains \"host\"\n| extend dimensions=parse_json(Tags)\n| extend quantile = tostring(dimensions.quantile)\n| where quantile == \"0.9\"\n| extend device = tostring(dimensions.edge_device)\n| where device == \"$deviceId\"\n| extend value = round(toint(Val),2)\n| project CPU=value, TimeGenerated\n| order by TimeGenerated\n\n",
+                            "resource": "/subscriptions/{0}/resourcegroups/{1}/providers/microsoft.operationalinsights/workspaces/{2}",
+                            "resultFormat": "time_series",
+                            "workspace": "/subscriptions/{0}/resourcegroups/{1}/providers/microsoft.operationalinsights/workspaces/{2}"
+                        }},
+                        "azureMonitor": {{
+                            "aggOptions": [],
+                            "dimensionFilter": "*",
+                            "dimensionFilters": [],
+                            "timeGrain": "auto",
+                            "timeGrains": [],
+                            "top": "10"
+                        }},
+                        "azureResourceGraph": {{
+                            "resultFormat": "table"
+                        }},
+                        "insightsAnalytics": {{
+                            "query": "",
+                            "resultFormat": "time_series"
+                        }},
+                        "queryType": "Azure Log Analytics",
+                        "refId": "A",
+                        "subscription": "{0}",
+                        "subscriptions": [
+                            "{0}"
+                        ]
+                    }}
+                ],
+                "title": "Host CPU Usage",
+                "type": "timeseries"
+            }},
+            {{
+                "collapsed": false,
+                "datasource": null,
+                "gridPos": {{
+                    "h": 1,
+                    "w": 24,
+                    "x": 0,
+                    "y": 9
+                }},
+                "id": 19,
+                "panels": [],
+                "title": "Modules Info",
+                "type": "row"
+            }},
+            {{
+                "datasource": "Azure Monitor",
+                "fieldConfig": {{
+                    "defaults": {{
+                        "color": {{
+                            "mode": "thresholds"
+                        }},
+                        "custom": {{
+                            "align": "auto",
+                            "displayMode": "color-text",
+                            "filterable": true
+                        }},
+                        "links": [
+                            {{
+                                "title": "",
+                                "url": "{3}/d/{4}/{5}?orgId={6}&${{__url_time_range}}&var-selectedModuleId=${{__data.fields.Module}}"
+                            }}
+                        ],
+                        "mappings": [
+                                 {{
+                                    "options": {{
+                                    "100": {{
+                                        "index": 0,
+                                        "text": "100%"
+                                    }}
+                                }},
+                                "type": "value"
+                            }}
+                        ],
+                        "noValue": "NA",
+                        "thresholds": {{
+                            "mode": "absolute",
+                            "steps": [
+                                {{
+                                    "color": "green",
+                                    "value": null
+                                }},
+                                {{
+                                    "color": "red",
+                                    "value": 80
+                                }}
+                            ]
+                        }},
+                        "unit": "none"
+                    }},
+                    "overrides": [
+                        {{
+                            "matcher": {{
+                                "id": "byName",
+                                "options": "UpTime"
+                            }},
+                            "properties": [
+                                {{
+                                    "id": "custom.displayMode",
+                                    "value": "auto"
+                                }},
+                                {{
+                                    "id": "links"
+                                }}
+                            ]
+                        }},
+                        {{
+                            "matcher": {{
+                                "id": "byName",
+                                "options": "Restarts"
+                            }},
+                            "properties": [
+                                {{
+                                    "id": "custom.displayMode",
+                                    "value": "auto"
+                                }},
+                                {{
+                                    "id": "links"
+                                }}
+                            ]
+                        }}
+                    ]
+                }},
+                "gridPos": {{
+                    "h": 9,
+                    "w": 8,
+                    "x": 0,
+                    "y": 10
+                }},
+                "id": 11,
+                "options": {{
+                    "showHeader": true,
+                    "sortBy": [
+                        {{
+                            "desc": false,
+                            "displayName": "Module"
+                        }}
+                    ]
+                }},
+                "pluginVersion": "8.1.1",
+                "targets": [
+                    {{
+                        "appInsights": {{
+                            "dimension": [],
+                            "metricName": "select",
+                            "timeGrain": "auto"
+                        }},
+                        "azureLogAnalytics": {{
+                            "query": "let startTime = ago(24h);\nlet endTime = now();\nlet deviceid = \"$deviceId\";\nlet actual = InsightsMetrics\n| where $__timeFilter(TimeGenerated)\n| where Name == \"edgeAgent_total_time_running_correctly_seconds\"\n| extend dimensions=parse_json(Tags)\n| extend device = tostring(dimensions.edge_device)\n| where device == deviceid\n| extend module = tostring(dimensions.module_name)\n// todo - account for agent restarts\n| summarize actualUptime=max(Val) by module;\nlet expected = InsightsMetrics\n| where $__timeFilter(TimeGenerated)\n| where Name == \"edgeAgent_total_time_expected_running_seconds\"\n| extend dimensions=parse_json(Tags)\n| extend device = tostring(dimensions.edge_device)\n| where device == deviceid\n| extend module = tostring(dimensions.module_name)\n// todo - account for agent restarts\n| summarize expectedUptime=max(Val) by module;\nlet availability = expected\n| join actual on module\n| extend uptime=(actualUptime / expectedUptime) * 100\n| project module, uptime, expectedUptime, actualUptime;\nlet modulerestarts = InsightsMetrics\n| where $__timeFilter(TimeGenerated)\n| where Name == \"edgeAgent_module_start_total\"\n| extend dimensions=parse_json(Tags)\n| extend device = tostring(dimensions.edge_device)\n| where device == deviceid\n| extend module = tostring(dimensions.module_name)\n| extend mversion = tostring(dimensions.module_version)\n| where mversion == \"1.0\" or module == \"edgeHub\"\n| extend instance = tostring(dimensions.instance_number)\n| extend value = toint(Val)\n| order by module, instance, TimeGenerated\n| serialize\n| extend nextValue = next(value, 1)\n| extend nextInstance = next(instance, 1)\n| extend nextmodule = next(module, 1)\n| project TimeGenerated, device, instance, nextInstance, module, nextmodule, value, nextValue\n| extend diff = iff((instance != nextInstance and module == nextmodule), 1, 0)\n| summarize sum(diff) by module\n| join kind=rightouter availability on module\n| project Module=module1, UpTime=uptime, expectedUptime, actualUptime, restarts=sum_diff\n| extend restartText = case(isnull(restarts), \"No restarts\",\n                            restarts == 0, \"No restarts\",\n                            restarts == 1, \"1 restart\",  \n                            strcat(restarts, \" restarts\"));\nmodulerestarts\n| project Module, UpTime, Restarts=restarts\n\n\n\n",
+                            "resource": "/subscriptions/{0}/resourcegroups/{1}/providers/microsoft.operationalinsights/workspaces/{2}",
+                            "resultFormat": "time_series",
+                            "workspace": "/subscriptions/{0}/resourcegroups/{1}/providers/microsoft.operationalinsights/workspaces/{2}"
+                        }},
+                        "azureMonitor": {{
+                            "aggOptions": [],
+                            "dimensionFilter": "*",
+                            "dimensionFilters": [],
+                            "timeGrain": "auto",
+                            "timeGrains": [],
+                            "top": "10"
+                        }},
+                        "azureResourceGraph": {{
+                            "resultFormat": "table"
+                        }},
+                        "insightsAnalytics": {{
+                            "query": "",
+                            "resultFormat": "time_series"
+                        }},
+                        "queryType": "Azure Log Analytics",
+                        "refId": "A",
+                        "subscription": "{0}",
+                        "subscriptions": [
+                            "{0}"
+                        ]
+                    }}
+                ],
+                "title": "Module List",
+                "type": "table"
+            }},
+            {{
+                "datasource": "Azure Monitor",
+                "fieldConfig": {{
+                    "defaults": {{
+                        "color": {{
+                            "mode": "palette-classic"
+                        }},
+                        "custom": {{
+                            "axisLabel": "CPU Usage",
+                            "axisPlacement": "auto",
+                            "barAlignment": 0,
+                            "drawStyle": "line",
+                            "fillOpacity": 10,
+                            "gradientMode": "none",
+                            "hideFrom": {{
+                                "legend": false,
+                                "tooltip": false,
+                                "viz": false
+                            }},
+                            "lineInterpolation": "linear",
+                            "lineStyle": {{
+                                "fill": "solid"
+                            }},
+                            "lineWidth": 3,
+                            "pointSize": 5,
+                            "scaleDistribution": {{
+                                "type": "linear"
+                            }},
+                            "showPoints": "never",
+                            "spanNulls": true,
+                            "stacking": {{
+                                "group": "A",
+                                "mode": "none"
+                            }},
+                            "thresholdsStyle": {{
+                                "mode": "off"
+                            }}
+                        }},
+                        "mappings": [],
+                        "thresholds": {{
+                            "mode": "absolute",
+                            "steps": [
+                                {{
+                                    "color": "green",
+                                    "value": null
+                                }},
+                                {{
+                                    "color": "red",
+                                    "value": 80
+                                }}
+                            ]
+                        }},
+                        "unit": "percent"
+                    }},
+                    "overrides": []
+                }},
+                "gridPos": {{
+                    "h": 9,
+                    "w": 9,
+                    "x": 8,
+                    "y": 10
+                }},
+                "id": 13,
+                "options": {{
+                    "legend": {{
+                        "calcs": [
+                            "mean"
+                        ],
+                        "displayMode": "list",
+                        "placement": "bottom"
+                    }},
+                    "tooltip": {{
+                        "mode": "single"
+                    }}
+                }},
+                "pluginVersion": "8.1.1",
+                "targets": [
+                    {{
+                        "appInsights": {{
+                            "dimension": [],
+                            "metricName": "select",
+                            "timeGrain": "auto"
+                        }},
+                        "azureLogAnalytics": {{
+                            "query": "InsightsMetrics\n| where $__timeFilter(TimeGenerated)\n| where Name == \"edgeAgent_used_cpu_percent\"\n| extend dimensions=parse_json(Tags)\n| extend quantile = tostring(dimensions.quantile)\n| where quantile == \"0.9\"\n| extend device = tostring(dimensions.edge_device)\n| extend metric = tostring(dimensions.module_name)\n| where metric != \"host\"\n| where device == \"$deviceId\" \n| extend value = todouble(Val)\n| order by TimeGenerated,metric\n| summarize d = make_bag(pack(metric, value)) by TimeGenerated\n| evaluate bag_unpack(d)\n| order by TimeGenerated; \n",
+                            "resource": "/subscriptions/{0}/resourcegroups/{1}/providers/microsoft.operationalinsights/workspaces/{2}",
+                            "resultFormat": "time_series",
+                            "workspace": "/subscriptions/{0}/resourcegroups/{1}/providers/microsoft.operationalinsights/workspaces/{2}"
+                        }},
+                        "azureMonitor": {{
+                            "aggOptions": [],
+                            "dimensionFilter": "*",
+                            "dimensionFilters": [],
+                            "timeGrain": "auto",
+                            "timeGrains": [],
+                            "top": "10"
+                        }},
+                        "azureResourceGraph": {{
+                            "resultFormat": "table"
+                        }},
+                        "insightsAnalytics": {{
+                            "query": "",
+                            "resultFormat": "time_series"
+                        }},
+                        "queryType": "Azure Log Analytics",
+                        "refId": "A",
+                        "subscription": "{0}",
+                        "subscriptions": [
+                            "{0}"
+                        ]
+                    }}
+                ],
+                "timeFrom": null,
+                "timeShift": null,
+                "title": "CPU Usage",
+                "transformations": [],
+                "type": "timeseries"
+            }},
+            {{
+                "datasource": "Azure Monitor",
+                "fieldConfig": {{
+                    "defaults": {{
+                        "color": {{
+                            "mode": "palette-classic"
+                        }},
+                        "custom": {{
+                            "axisLabel": "",
+                            "axisPlacement": "auto",
+                            "barAlignment": 0,
+                            "drawStyle": "line",
+                            "fillOpacity": 20,
+                            "gradientMode": "opacity",
+                            "hideFrom": {{
+                                "legend": false,
+                                "tooltip": false,
+                                "viz": false
+                            }},
+                            "lineInterpolation": "smooth",
+                            "lineStyle": {{
+                                "fill": "solid"
+                            }},
+                            "lineWidth": 3,
+                            "pointSize": 5,
+                            "scaleDistribution": {{
+                                "type": "linear"
+                            }},
+                            "showPoints": "always",
+                            "spanNulls": true,
+                            "stacking": {{
+                                "group": "A",
+                                "mode": "none"
+                            }},
+                            "thresholdsStyle": {{
+                                "mode": "off"
+                            }}
+                        }},
+                        "mappings": [],
+                        "thresholds": {{
+                            "mode": "absolute",
+                            "steps": [
+                                {{
+                                    "color": "green",
+                                    "value": null
+                                }},
+                                {{
+                                    "color": "red",
+                                    "value": 80
+                                }}
+                            ]
+                        }},
+                        "unit": "bytes"
+                    }},
+                    "overrides": []
+                }},
+                "gridPos": {{
+                    "h": 9,
+                    "w": 7,
+                    "x": 17,
+                    "y": 10
+                }},
+                "id": 14,
+                "options": {{
+                    "legend": {{
+                        "calcs": [
+                            "mean"
+                        ],
+                        "displayMode": "list",
+                        "placement": "bottom"
+                    }},
+                    "tooltip": {{
+                        "mode": "single"
+                    }}
+                }},
+                "pluginVersion": "8.1.1",
+                "targets": [
+                    {{
+                        "appInsights": {{
+                            "dimension": [],
+                            "metricName": "select",
+                            "timeGrain": "auto"
+                        }},
+                        "azureLogAnalytics": {{
+                            "query": "InsightsMetrics\n| where $__timeFilter(TimeGenerated)\n| where Name == \"edgeAgent_used_memory_bytes\"\n| extend dimensions=parse_json(Tags)\n| extend device = tostring(dimensions.edge_device)\n| extend metric = tostring(dimensions.module_name)\n| where metric != \"host\"\n| where device == \"$deviceId\"\n| extend value = todouble(Val)\n| order by TimeGenerated,metric\n| summarize d = make_bag(pack(metric, value)) by TimeGenerated\n| evaluate bag_unpack(d)\n| order by TimeGenerated; \n",
+                            "resource": "/subscriptions/{0}/resourcegroups/{1}/providers/microsoft.operationalinsights/workspaces/{2}",
+                            "resultFormat": "time_series",
+                            "workspace": "/subscriptions/{0}/resourcegroups/{1}/providers/microsoft.operationalinsights/workspaces/{2}"
+                        }},
+                        "azureMonitor": {{
+                            "aggOptions": [],
+                            "dimensionFilter": "*",
+                            "dimensionFilters": [],
+                            "timeGrain": "auto",
+                            "timeGrains": [],
+                            "top": "10"
+                        }},
+                        "azureResourceGraph": {{
+                            "resultFormat": "table"
+                        }},
+                        "insightsAnalytics": {{
+                            "query": "",
+                            "resultFormat": "time_series"
+                        }},
+                        "queryType": "Azure Log Analytics",
+                        "refId": "A",
+                        "subscription": "{0}",
+                        "subscriptions": [
+                            "{0}"
+                        ]
+                    }}
+                ],
+                "timeFrom": null,
+                "timeShift": null,
+                "title": "Memory Usage",
+                "transformations": [],
+                "type": "timeseries"
+            }},
+            {{
+                "collapsed": false,
+                "datasource": null,
+                "gridPos": {{
+                    "h": 1,
+                    "w": 24,
+                    "x": 0,
+                    "y": 19
+                }},
+                "id": 17,
+                "panels": [],
+                "title": "Module Info - ${{selectedModuleId}}",
+                "type": "row"
+            }},
+            {{
+                "datasource": "Azure Monitor",
+                "fieldConfig": {{
+                    "defaults": {{
+                        "color": {{
+                            "mode": "palette-classic"
+                        }},
+                        "custom": {{
+                            "axisLabel": "",
+                            "axisPlacement": "auto",
+                            "barAlignment": 0,
+                            "drawStyle": "line",
+                            "fillOpacity": 20,
+                            "gradientMode": "opacity",
+                            "hideFrom": {{
+                                "legend": false,
+                                "tooltip": false,
+                                "viz": false
+                            }},
+                            "lineInterpolation": "smooth",
+                            "lineStyle": {{
+                                "fill": "solid"
+                            }},
+                            "lineWidth": 3,
+                            "pointSize": 5,
+                            "scaleDistribution": {{
+                                "type": "linear"
+                            }},
+                            "showPoints": "always",
+                            "spanNulls": true,
+                            "stacking": {{
+                                "group": "A",
+                                "mode": "none"
+                            }},
+                            "thresholdsStyle": {{
+                                "mode": "off"
+                            }}
+                        }},
+                        "mappings": [],
+                        "thresholds": {{
+                            "mode": "absolute",
+                            "steps": [
+                                {{
+                                    "color": "green",
+                                    "value": null
+                                }},
+                                {{
+                                    "color": "red",
+                                    "value": 80
+                                }}
+                            ]
+                        }},
+                        "unit": "bytes"
+                    }},
+                    "overrides": []
+                }},
+                "gridPos": {{
+                    "h": 9,
+                    "w": 12,
+                    "x": 0,
+                    "y": 20
+                }},
+                "id": 12,
+                "options": {{
+                    "legend": {{
+                        "calcs": [
+                            "mean"
+                        ],
+                        "displayMode": "list",
+                        "placement": "bottom"
+                    }},
+                    "tooltip": {{
+                        "mode": "single"
+                    }}
+                }},
+                "pluginVersion": "8.1.1",
+                "targets": [
+                    {{
+                        "appInsights": {{
+                            "dimension": [],
+                            "metricName": "select",
+                            "timeGrain": "auto"
+                        }},
+                        "azureLogAnalytics": {{
+                            "query": "InsightsMetrics\n| where $__timeFilter(TimeGenerated)\n| where Name == \"edgeAgent_used_memory_bytes\"\n| extend dimensions=parse_json(Tags)\n| extend device = tostring(dimensions.edge_device)\n| extend metric = tostring(dimensions.module_name)\n| where metric != \"host\"\n| where metric == '$selectedModuleId'\n| where device == \"$deviceId\" \n| extend value = todouble(Val)\n| order by TimeGenerated,metric\n| summarize d = make_bag(pack(metric, value)) by TimeGenerated\n| evaluate bag_unpack(d)\n| order by TimeGenerated; \n",
+                            "resource": "/subscriptions/{0}/resourcegroups/{1}/providers/microsoft.operationalinsights/workspaces/{2}",
+                            "resultFormat": "time_series",
+                            "workspace": "/subscriptions/{0}/resourcegroups/{1}/providers/microsoft.operationalinsights/workspaces/{2}"
+                        }},
+                        "azureMonitor": {{
+                            "aggOptions": [],
+                            "dimensionFilter": "*",
+                            "dimensionFilters": [],
+                            "timeGrain": "auto",
+                            "timeGrains": [],
+                            "top": "10"
+                        }},
+                        "azureResourceGraph": {{
+                            "resultFormat": "table"
+                        }},
+                        "insightsAnalytics": {{
+                            "query": "",
+                            "resultFormat": "time_series"
+                        }},
+                        "queryType": "Azure Log Analytics",
+                        "refId": "A",
+                        "subscription": "{0}",
+                        "subscriptions": [
+                            "{0}"
+                        ]
+                    }}
+                ],
+                "timeFrom": null,
+                "timeShift": null,
+                "title": "Memory Usage - ${{selectedModuleId}}",
+                "transformations": [],
+                "type": "timeseries"
+            }},
+            {{
+                "datasource": "Azure Monitor",
+                "fieldConfig": {{
+                    "defaults": {{
+                        "color": {{
+                            "mode": "palette-classic"
+                        }},
+                        "custom": {{
+                            "axisLabel": "CPU Usage",
+                            "axisPlacement": "auto",
+                            "barAlignment": 0,
+                            "drawStyle": "line",
+                            "fillOpacity": 10,
+                            "gradientMode": "none",
+                            "hideFrom": {{
+                                "legend": false,
+                                "tooltip": false,
+                                "viz": false
+                            }},
+                            "lineInterpolation": "linear",
+                            "lineStyle": {{
+                                "fill": "solid"
+                            }},
+                            "lineWidth": 3,
+                            "pointSize": 5,
+                            "scaleDistribution": {{
+                                "type": "linear"
+                            }},
+                            "showPoints": "never",
+                            "spanNulls": true,
+                            "stacking": {{
+                                "group": "A",
+                                "mode": "none"
+                            }},
+                            "thresholdsStyle": {{
+                                "mode": "off"
+                            }}
+                        }},
+                        "mappings": [],
+                        "thresholds": {{
+                            "mode": "absolute",
+                            "steps": [
+                                {{
+                                    "color": "green",
+                                    "value": null
+                                }},
+                                {{
+                                    "color": "red",
+                                    "value": 80
+                                }}
+                            ]
+                        }},
+                        "unit": "percent"
+                    }},
+                    "overrides": []
+                }},
+                "gridPos": {{
+                    "h": 9,
+                    "w": 12,
+                    "x": 12,
+                    "y": 20
+                }},
+                "id": 15,
+                "options": {{
+                    "legend": {{
+                        "calcs": [
+                            "mean"
+                        ],
+                        "displayMode": "list",
+                        "placement": "bottom"
+                    }},
+                    "tooltip": {{
+                        "mode": "single"
+                    }}
+                }},
+                "pluginVersion": "8.1.1",
+                "targets": [
+                    {{
+                        "appInsights": {{
+                            "dimension": [],
+                            "metricName": "select",
+                            "timeGrain": "auto"
+                        }},
+                        "azureLogAnalytics": {{
+                            "query": "InsightsMetrics\n| where $__timeFilter(TimeGenerated)\n| where Name == \"edgeAgent_used_cpu_percent\"\n| extend dimensions=parse_json(Tags)\n| extend quantile = tostring(dimensions.quantile)\n| where quantile == \"0.9\"\n| extend device = tostring(dimensions.edge_device)\n| extend metric = tostring(dimensions.module_name)\n| where metric != \"host\" \n| where metric == '$selectedModuleId'\n| where device == \"$deviceId\"\n| extend value = todouble(Val)\n| order by TimeGenerated,metric\n| summarize d = make_bag(pack(metric, value)) by TimeGenerated\n| evaluate bag_unpack(d)\n| order by TimeGenerated; \n",
+                            "resource": "/subscriptions/{0}/resourcegroups/{1}/providers/microsoft.operationalinsights/workspaces/{2}",
+                            "resultFormat": "time_series",
+                            "workspace": "/subscriptions/{0}/resourcegroups/{1}/providers/microsoft.operationalinsights/workspaces/{2}"
+                        }},
+                        "azureMonitor": {{
+                            "aggOptions": [],
+                            "dimensionFilter": "*",
+                            "dimensionFilters": [],
+                            "timeGrain": "auto",
+                            "timeGrains": [],
+                            "top": "10"
+                        }},
+                        "azureResourceGraph": {{
+                            "resultFormat": "table"
+                        }},
+                        "insightsAnalytics": {{
+                            "query": "",
+                            "resultFormat": "time_series"
+                        }},
+                        "queryType": "Azure Log Analytics",
+                        "refId": "A",
+                        "subscription": "{0}",
+                        "subscriptions": [
+                            "{0}"
+                        ]
+                    }}
+                ],
+                "timeFrom": null,
+                "timeShift": null,
+                "title": "CPU Usage - ${{selectedModuleId}}",
+                "transformations": [],
+                "type": "timeseries"
+            }}
+        ],
+        "refresh": "",
+        "schemaVersion": 30,
+        "style": "dark",
+        "tags": [],
+        "templating": {{
+            "list": [
+                {{
+                    "allValue": null,
+                    "current": {{
+                        "selected": false,
+                        "text": "linux",
+                        "value": "linux"
+                    }},
+                    "datasource": "Azure Monitor",
+                    "definition": "InsightsMetrics\n| where TimeGenerated > ago(1h)\n| where Name contains \"metadata\"\n| extend dimensions=parse_json(Tags)\n| extend device = tostring(dimensions.edge_device)\n| where device == \"$deviceId\"\n| extend host_info=tostring(dimensions.host_information)\n| summarize max(TimeGenerated) by host_info\n| extend host_info_=replace(@'\\\\\\\\', @'', host_info)\n| extend host_info_json=parse_json(host_info_)\n| extend ostype=tostring(host_info_json.OperatingSystemType)\n| top 1 by max_TimeGenerated desc| project ostype",
+                    "description": null,
+                    "error": null,
+                    "hide": 2,
+                    "includeAll": false,
+                    "label": null,
+                    "multi": false,
+                    "name": "hostInfoOstype",
+                    "options": [],
+                    "query": "InsightsMetrics\n| where TimeGenerated > ago(1h)\n| where Name contains \"metadata\"\n| extend dimensions=parse_json(Tags)\n| extend device = tostring(dimensions.edge_device)\n| where device == \"$deviceId\"\n| extend host_info=tostring(dimensions.host_information)\n| summarize max(TimeGenerated) by host_info\n| extend host_info_=replace(@'\\\\\\\\', @'', host_info)\n| extend host_info_json=parse_json(host_info_)\n| extend ostype=tostring(host_info_json.OperatingSystemType)\n| top 1 by max_TimeGenerated desc| project ostype",
+                    "refresh": 1,
+                    "regex": "",
+                    "skipUrlSync": false,
+                    "sort": 0,
+                    "type": "query"
+                }},
+                {{
+                    "allValue": null,
+                    "current": {{
+                        "selected": false,
+                        "text": "x86_64",
+                        "value": "x86_64"
+                    }},
+                    "datasource": "Azure Monitor",
+                    "definition": "InsightsMetrics\n| where TimeGenerated > ago(1h)\n| where Name contains \"metadata\"\n| extend dimensions=parse_json(Tags)\n| extend device = tostring(dimensions.edge_device)\n| where device == \"$deviceId\"\n| extend host_info=tostring(dimensions.host_information)\n| summarize max(TimeGenerated) by host_info\n| extend host_info_=replace(@'\\\\\\\\', @'', host_info)\n| extend host_info_json=parse_json(host_info_)\n| extend arch=tostring(host_info_json.Architecture)\n| top 1 by max_TimeGenerated desc| project arch\n",
+                    "description": null,
+                    "error": null,
+                    "hide": 2,
+                    "includeAll": false,
+                    "label": null,
+                    "multi": false,
+                    "name": "hostInfoArch",
+                    "options": [],
+                    "query": "InsightsMetrics\n| where TimeGenerated > ago(1h)\n| where Name contains \"metadata\"\n| extend dimensions=parse_json(Tags)\n| extend device = tostring(dimensions.edge_device)\n| where device == \"$deviceId\"\n| extend host_info=tostring(dimensions.host_information)\n| summarize max(TimeGenerated) by host_info\n| extend host_info_=replace(@'\\\\\\\\', @'', host_info)\n| extend host_info_json=parse_json(host_info_)\n| extend arch=tostring(host_info_json.Architecture)\n| top 1 by max_TimeGenerated desc| project arch\n",
+                    "refresh": 1,
+                    "regex": "",
+                    "skipUrlSync": false,
+                    "sort": 0,
+                    "type": "query"
+                }},
+                {{
+                    "allValue": null,
+                    "current": {{
+                        "isNone": true,
+                        "selected": true,
+                        "text": "None",
+                        "value": ""
+                    }},
+                    "datasource": "Azure Monitor",
+                    "definition": "InsightsMetrics\n| where TimeGenerated > ago(1h)\n| where Name contains \"metadata\"\n| extend dimensions=parse_json(Tags)\n| extend device = tostring(dimensions.edge_device)\n| where device == \"$deviceId\"\n| extend host_info=tostring(dimensions.host_information)\n| summarize max(TimeGenerated) by host_info\n| extend host_info_=replace(@'\\\\\\\\', @'', host_info)\n| extend host_info_json=parse_json(host_info_)\n| extend os=tostring(host_info_json.OperatingSystem)\n| top 1 by max_TimeGenerated desc| project os\n",
+                    "description": null,
+                    "error": null,
+                    "hide": 2,
+                    "includeAll": false,
+                    "label": null,
+                    "multi": false,
+                    "name": "hostInfoOs",
+                    "options": [],
+                    "query": "InsightsMetrics\n| where TimeGenerated > ago(1h)\n| where Name contains \"metadata\"\n| extend dimensions=parse_json(Tags)\n| extend device = tostring(dimensions.edge_device)\n| where device == \"$deviceId\"\n| extend host_info=tostring(dimensions.host_information)\n| summarize max(TimeGenerated) by host_info\n| extend host_info_=replace(@'\\\\\\\\', @'', host_info)\n| extend host_info_json=parse_json(host_info_)\n| extend os=tostring(host_info_json.OperatingSystem)\n| top 1 by max_TimeGenerated desc| project os\n",
+                    "refresh": 1,
+                    "regex": "",
+                    "skipUrlSync": false,
+                    "sort": 0,
+                    "type": "query"
+                }},
+                {{
+                    "allValue": null,
+                    "current": {{
+                        "isNone": true,
+                        "selected": true,
+                        "text": "None",
+                        "value": ""
+                    }},
+                    "datasource": "Azure Monitor",
+                    "definition": "InsightsMetrics\n| where TimeGenerated > ago(1h)\n| where Name contains \"metadata\"\n| extend dimensions=parse_json(Tags)\n| extend device = tostring(dimensions.edge_device)\n| where device == \"$deviceId\"\n| extend host_info=tostring(dimensions.host_information)\n| summarize max(TimeGenerated) by host_info\n| extend host_info_=replace(@'\\\\\\\\', @'', host_info)\n| extend host_info_json=parse_json(host_info_)\n| extend edgeversion=tostring(host_info_json.Version)\n| top 1 by max_TimeGenerated desc| project edgeversion",
+                    "description": null,
+                    "error": null,
+                    "hide": 2,
+                    "includeAll": false,
+                    "label": null,
+                    "multi": false,
+                    "name": "hostInfoEdgedVer",
+                    "options": [],
+                    "query": "InsightsMetrics\n| where TimeGenerated > ago(1h)\n| where Name contains \"metadata\"\n| extend dimensions=parse_json(Tags)\n| extend device = tostring(dimensions.edge_device)\n| where device == \"$deviceId\"\n| extend host_info=tostring(dimensions.host_information)\n| summarize max(TimeGenerated) by host_info\n| extend host_info_=replace(@'\\\\\\\\', @'', host_info)\n| extend host_info_json=parse_json(host_info_)\n| extend edgeversion=tostring(host_info_json.Version)\n| top 1 by max_TimeGenerated desc| project edgeversion",
+                    "refresh": 1,
+                    "regex": "",
+                    "skipUrlSync": false,
+                    "sort": 0,
+                    "type": "query"
+                }},
+                {{
+                    "allValue": null,
+                    "current": {{
+                        "isNone": true,
+                        "selected": true,
+                        "text": "None",
+                        "value": ""
+                    }},
+                    "datasource": "Azure Monitor",
+                    "definition": "InsightsMetrics\n| where TimeGenerated > ago(1h)\n| where Name contains \"metadata\"\n| extend dimensions=parse_json(Tags)\n| extend device = tostring(dimensions.edge_device)\n| where device == \"$deviceId\"\n| extend host_info=tostring(dimensions.host_information)\n| summarize max(TimeGenerated) by host_info\n| extend host_info_=replace(@'\\\\\\\\', @'', host_info)\n| extend host_info_json=parse_json(host_info_)\n| extend dockerversion=tostring(host_info_json.ServerVersion)\n| top 1 by max_TimeGenerated desc| project dockerversion",
+                    "description": null,
+                    "error": null,
+                    "hide": 2,
+                    "includeAll": false,
+                    "label": null,
+                    "multi": false,
+                    "name": "hostInfoDockerVer",
+                    "options": [],
+                    "query": "InsightsMetrics\n| where TimeGenerated > ago(1h)\n| where Name contains \"metadata\"\n| extend dimensions=parse_json(Tags)\n| extend device = tostring(dimensions.edge_device)\n| where device == \"$deviceId\"\n| extend host_info=tostring(dimensions.host_information)\n| summarize max(TimeGenerated) by host_info\n| extend host_info_=replace(@'\\\\\\\\', @'', host_info)\n| extend host_info_json=parse_json(host_info_)\n| extend dockerversion=tostring(host_info_json.ServerVersion)\n| top 1 by max_TimeGenerated desc| project dockerversion",
+                    "refresh": 1,
+                    "regex": "",
+                    "skipUrlSync": false,
+                    "sort": 0,
+                    "type": "query"
+                }},
+                {{
+                    "allValue": null,
+                    "current": {{
+                        "isNone": true,
+                        "selected": true,
+                        "text": "None",
+                        "value": ""
+                    }},
+                    "datasource": "Azure Monitor",
+                    "definition": "InsightsMetrics\n| where TimeGenerated > ago(1h)\n| where Name contains \"metadata\"\n| extend dimensions=parse_json(Tags)\n| extend device = tostring(dimensions.edge_device)\n| where device == \"$deviceId\"\n| extend host_info=tostring(dimensions.host_information)\n| summarize max(TimeGenerated) by host_info\n| extend host_info_=replace(@'\\\\\\\\', @'', host_info)\n| extend host_info_json=parse_json(host_info_)\n| extend numcpu=tostring(host_info_json.NumCpus)\n| top 1 by max_TimeGenerated desc| project numcpu",
+                    "description": null,
+                    "error": null,
+                    "hide": 2,
+                    "includeAll": false,
+                    "label": null,
+                    "multi": false,
+                    "name": "hostInfoNumCpus",
+                    "options": [],
+                    "query": "InsightsMetrics\n| where TimeGenerated > ago(1h)\n| where Name contains \"metadata\"\n| extend dimensions=parse_json(Tags)\n| extend device = tostring(dimensions.edge_device)\n| where device == \"$deviceId\"\n| extend host_info=tostring(dimensions.host_information)\n| summarize max(TimeGenerated) by host_info\n| extend host_info_=replace(@'\\\\\\\\', @'', host_info)\n| extend host_info_json=parse_json(host_info_)\n| extend numcpu=tostring(host_info_json.NumCpus)\n| top 1 by max_TimeGenerated desc| project numcpu",
+                    "refresh": 1,
+                    "regex": "",
+                    "skipUrlSync": false,
+                    "sort": 0,
+                    "type": "query"
+                }},
+                {{
+                    "description": null,
+                    "error": null,
+                    "hide": 2,
+                    "label": null,
+                    "name": "selectedModuleId",
+                    "query": "edgeAgent",
+                    "skipUrlSync": false,
+                    "type": "constant"
+                }},
+                {{
+                    "description": null,
+                    "error": null,
+                    "hide": 2,
+                    "label": null,
+                    "name": "deviceId",
+                    "query": "edge2",
+                    "skipUrlSync": false,
+                    "type": "constant"
+                }}
+            ]
+        }},
+        "time": {{
+            "from": "now-1h",
+            "to": "now"
+        }},
+        "timezone": "",
+        "title": "{5}",
+        "uid": "{4}"
+    }}
+    }}
