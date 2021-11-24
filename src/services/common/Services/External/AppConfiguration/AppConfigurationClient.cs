@@ -20,7 +20,15 @@ namespace Mmm.Iot.Common.Services.External.AppConfiguration
 
         public AppConfigurationClient(AppConfig config)
         {
-            this.client = new ConfigurationClient(config.AppConfigurationConnectionString);
+            if (!string.IsNullOrEmpty(config.AppConfigurationConnectionString))
+            {
+              this.client = new ConfigurationClient(config.AppConfigurationConnectionString);
+            }
+            else
+            {
+              this.client = new ConfigurationClient(new Uri(config.AppConfigEndpoint), new ManagedIdentityCredential(config.ManagedIdentityClientId));
+            }
+
             this.config = config;
         }
 
