@@ -76,16 +76,15 @@ namespace Mmm.Iot.Common.Services
 
                 var initialAppConfig = new AppConfig(configurationBuilder);
                 configurationBuilder = new ConfigurationBuilder();
-                if (initialAppConfig != null)
-                 {
-                   configurationBuilder.AddAzureAppConfiguration(initialAppConfig.AppConfigurationConnectionString);
-                 }
+                if (!string.IsNullOrEmpty(initialAppConfig.AppConfigurationConnectionString))
+                {
+                configurationBuilder.AddAzureAppConfiguration(initialAppConfig.AppConfigurationConnectionString);
+                }
                 else
-                 {
-                   var settings = config.Build();
-                   configurationBuilder.AddAzureAppConfiguration(options => options.Connect(new Uri(settings["AppConfigEndpoint"]), new ManagedIdentityCredential(settings["ManagedIdentityClientId"])));
-                 }
-
+                {
+                configurationBuilder.AddAzureAppConfiguration(options =>
+                options.Connect(new Uri(initialAppConfig.AppConfigEndpoint), new ManagedIdentityCredential(initialAppConfig.ManagedIdentityClientId)));
+                }
                 var azureAppConfigConfig = new AppConfig(configurationBuilder);
                 config.AddConfiguration(azureAppConfigConfig.Configuration);
                 config.AddAzureKeyVault(
