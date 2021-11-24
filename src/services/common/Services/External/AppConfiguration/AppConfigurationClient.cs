@@ -6,8 +6,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Azure.Identity;
 using Azure.Data.AppConfiguration;
+using Azure.Identity;
 using Mmm.Iot.Common.Services.Config;
 using Mmm.Iot.Common.Services.Models;
 
