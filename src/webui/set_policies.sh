@@ -20,7 +20,7 @@
 
 # }
 
-modify_webui_policies(){
+modify_webui_policies() {
 
 if $(globalClientAuthRoles) > appconfig.txt; then
    echo "Pushed the appconfig value to appconfig.txt"
@@ -64,6 +64,7 @@ if $(globalClientAuthRoles) > appconfig.txt; then
 #      echo "Exiting set_env.sh"
 #      exit 1
 # fi
+
 }
 main() {
   # For the script to fetch the secrets from key-vault foll. variable

@@ -16,7 +16,7 @@
 # }
 modify_cors() {
   
-  value=$(globalClientCorsWhiteList)
+  value=$globalClientCorsWhiteList
   echo $value
   if [ -z "$value" ]
   then
