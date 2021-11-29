@@ -5,6 +5,7 @@ import { withNamespaces } from "react-i18next";
 import { DeviceDetail } from "./deviceDetail";
 import {
     redux as appRedux,
+    epics as appEpics,
     getTheme,
     getDeviceGroups,
     getTimeSeriesExplorerUrl,
@@ -52,6 +53,8 @@ const mapStateToProps = (state, props) => ({
             ),
         updateTimeInterval: (timeInterval) =>
             dispatch(appRedux.actions.updateTimeInterval(timeInterval)),
+        logEvent: (diagnosticsModel) =>
+            dispatch(appEpics.actions.logEvent(diagnosticsModel)),
     });
 
 export const DeviceDetailContainer = withNamespaces()(

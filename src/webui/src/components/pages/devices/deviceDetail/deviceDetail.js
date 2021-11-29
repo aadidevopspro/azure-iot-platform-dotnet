@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft. All rights reserved.
 
 import React, { Component } from "react";
-import { Subject } from "rxjs";
-import { rulesColumnDefs } from "components/pages/rules/rulesGrid";
 import { svgs } from "utilities";
 import {
     Btn,
@@ -15,52 +13,26 @@ import {
 import { toDiagnosticsModel } from "services/models";
 import "./deviceDetail.scss";
 import { NavLink } from "react-router-dom";
+import { Route, Switch } from "react-router-dom";
+import { Notifications } from "components/pages/maintenance/summary/notifications";
+import { DeviceDeploymentsContainer } from "./tabs/deviceDeployment.container";
 
 export class DeviceDetail extends Component {
     constructor(props) {
         super(props);
+        debugger;
         this.state = {
-            alerts: undefined,
-            isAlertsPending: false,
-            alertsError: undefined,
-
-            telemetry: {},
-            telemetryIsPending: true,
-            telemetryError: null,
-            telemetryQueryExceededLimit: false,
-
-            showRawMessage: false,
-            currentModuleStatus: undefined,
-            deviceUploads: undefined,
-            deviceDeployments: undefined,
-            expandedValue: false,
             deviceId: props.location.state.deviceId,
         };
-        this.baseState = this.state;
-        this.columnDefs = [
-            {
-                ...rulesColumnDefs.ruleName,
-                cellRendererFramework: undefined, // Don't allow soft select from an open flyout
-            },
-            rulesColumnDefs.severity,
-            rulesColumnDefs.alertStatus,
-            rulesColumnDefs.explore,
-        ];
+    }
 
-        this.resetTelemetry$ = new Subject();
-        this.telemetryRefresh$ = new Subject();
-        if (this.props.moduleStatus) {
-            this.state = {
-                ...this.state,
-                currentModuleStatus: this.props.moduleStatus,
-            };
-        } else {
-            this.props.fetchModules(this.state.deviceId);
-        }
+    componentDidMount() {
+        console.log(this.state.deviceId);
     }
 
     tabClickHandler = (tabName) => {
-        this.props.logEvent(toDiagnosticsModel(tabName + "_Click", {}));
+        const { logEvent } = this.props;
+        logEvent(toDiagnosticsModel(tabName + "_Click", {}));
     };
 
     navigateToDevices = () => {
@@ -84,14 +56,13 @@ export class DeviceDetail extends Component {
                         titleValue={this.props.t("devices.details.title")}
                     />
                     <div className="tab-container">
-                        
-                    <NavLink
+                        <NavLink
                             to={"/devices/device-details/tags"}
                             className="tab"
                             activeClassName="active"
                             onClick={this.tabClickHandler.bind(this, "JobsTab")}
                         >
-                        {this.props.t("devices.details.alerts.title")}
+                            {this.props.t("devices.details.alerts.title")}
                         </NavLink>
                         <NavLink
                             to={"/devices/device-details/telemetry"}
@@ -110,7 +81,7 @@ export class DeviceDetail extends Component {
                             activeClassName="active"
                             onClick={this.tabClickHandler.bind(this, "JobsTab")}
                         >
-                        {this.props.t("devices.details.tags.title")}
+                            {this.props.t("devices.details.tags.title")}
                         </NavLink>
                         <NavLink
                             to={"/devices/device-details/tags"}
@@ -118,7 +89,7 @@ export class DeviceDetail extends Component {
                             activeClassName="active"
                             onClick={this.tabClickHandler.bind(this, "JobsTab")}
                         >
-                        {this.props.t("devices.details.methods.title")}
+                            {this.props.t("devices.details.methods.title")}
                         </NavLink>
                         <NavLink
                             to={"/devices/device-details/tags"}
@@ -126,7 +97,7 @@ export class DeviceDetail extends Component {
                             activeClassName="active"
                             onClick={this.tabClickHandler.bind(this, "JobsTab")}
                         >
-                        {this.props.t("devices.details.properties.title")}
+                            {this.props.t("devices.details.properties.title")}
                         </NavLink>
                         <NavLink
                             to={"/devices/device-details/tags"}
@@ -134,7 +105,7 @@ export class DeviceDetail extends Component {
                             activeClassName="active"
                             onClick={this.tabClickHandler.bind(this, "JobsTab")}
                         >
-                        {this.props.t("devices.details.diagnostics.title")}
+                            {this.props.t("devices.details.diagnostics.title")}
                         </NavLink>
                         <NavLink
                             to={"/devices/device-details/tags"}
@@ -142,7 +113,7 @@ export class DeviceDetail extends Component {
                             activeClassName="active"
                             onClick={this.tabClickHandler.bind(this, "JobsTab")}
                         >
-                        {this.props.t("devices.details.modules.title")}
+                            {this.props.t("devices.details.modules.title")}
                         </NavLink>
                         <NavLink
                             to={"/devices/device-details/tags"}
@@ -150,16 +121,48 @@ export class DeviceDetail extends Component {
                             activeClassName="active"
                             onClick={this.tabClickHandler.bind(this, "JobsTab")}
                         >
-                        {this.props.t("devices.details.deviceUploads.title")}
+                            {this.props.t(
+                                "devices.details.deviceUploads.title"
+                            )}
                         </NavLink>
                         <NavLink
-                            to={"/devices/device-details/tags"}
+                            to={"/devices/device-details/device-deployments"}
                             className="tab"
                             activeClassName="active"
-                            onClick={this.tabClickHandler.bind(this, "JobsTab")}
+                            onClick={this.tabClickHandler.bind(
+                                this,
+                                "DeviceDeploymentsTab"
+                            )}
                         >
-                        {this.props.t("devices.details.deviceDeployments.title")}
+                            {this.props.t(
+                                "devices.details.deviceDeployments.title"
+                            )}
                         </NavLink>
+                    </div>
+                    <div className="grid-container">
+                        <Switch>
+                            <Route
+                                exact
+                                path={"/devices/device-details/tags"}
+                                render={() => (
+                                    <Notifications
+                                        {...this.props}
+                                        {...this.props.alertProps}
+                                    />
+                                )}
+                            />
+                            <Route
+                                exact
+                                path={
+                                    "/devices/device-details/device-deployments"
+                                }
+                                render={() => (
+                                    <DeviceDeploymentsContainer
+                                        deviceId={this.state.deviceId}
+                                    />
+                                )}
+                            />
+                        </Switch>
                     </div>
                 </PageContent>
             </ComponentArray>
