@@ -286,6 +286,11 @@ export class DevicesGrid extends Component {
         }
     };
 
+    goToDeviceDetail = (deviceId) => {
+        this.props.history.push("/devices/device-detail", {
+            deviceId: deviceId,
+        });
+    };
     /**
      * Handles soft select props method
      *
@@ -295,11 +300,9 @@ export class DevicesGrid extends Component {
         const { onSoftSelectChange } = this.props;
         if (deviceId) {
             this.setState({
-                openFlyoutName: "details",
                 softSelectedDeviceId: deviceId,
             });
-        } else {
-            this.closeFlyout();
+            this.goToDeviceDetail(deviceId);
         }
         if (isFunc(onSoftSelectChange)) {
             onSoftSelectChange(deviceId);
