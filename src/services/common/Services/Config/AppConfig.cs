@@ -25,6 +25,10 @@ namespace Mmm.Iot.Common.Services.Config
 
         public IConfiguration Configuration { get; private set; }
 
+        public virtual string AppConfigEndpoint { get; set; }
+
+        public virtual string ManagedIdentityClientId { get; set; }
+
         public virtual string AppConfigurationConnectionString { get; set; }
 
         public virtual string ASPNETCORE_URLS { get; set; }
