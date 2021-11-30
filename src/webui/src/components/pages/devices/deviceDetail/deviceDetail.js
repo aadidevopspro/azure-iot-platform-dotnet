@@ -14,14 +14,14 @@ import { toDiagnosticsModel } from "services/models";
 import "./deviceDetail.scss";
 import { NavLink } from "react-router-dom";
 import { Route, Switch } from "react-router-dom";
-import { DeviceDeploymentsContainer } from "./tabs/deviceDeployment.container";
+import { DeviceDeploymentsContainer } from "./tabs/deviceDeployments/deviceDeployment.container";
 import { DeviceAlertsContainer } from "./tabs/deviceAlerts/deviceAlerts.container";
 import { TelemetryContainer } from "./tabs/telemetry/telemetry.container";
+import { DeviceUploadsContainer } from "./tabs/deviceUploads";
 
 export class DeviceDetail extends Component {
     constructor(props) {
         super(props);
-        debugger;
         this.state = {
             deviceId: props.location.state.deviceId,
         };
@@ -126,17 +126,28 @@ export class DeviceDetail extends Component {
                             {this.props.t("devices.details.modules.title")}
                         </NavLink>
                         <NavLink
-                            to={"/devices/device-details/tags"}
+                            to={{
+                                pathname:
+                                    "/devices/device-details/device-uploads",
+                                state: { deviceId: this.state.deviceId },
+                            }}
                             className="tab"
                             activeClassName="active"
-                            onClick={this.tabClickHandler.bind(this, "JobsTab")}
+                            onClick={this.tabClickHandler.bind(
+                                this,
+                                "DeviceUploadsTab"
+                            )}
                         >
                             {this.props.t(
                                 "devices.details.deviceUploads.title"
                             )}
                         </NavLink>
                         <NavLink
-                            to={"/devices/device-details/device-deployments"}
+                            to={{
+                                pathname:
+                                    "/devices/device-details/device-deployments",
+                                state: { deviceId: this.state.deviceId },
+                            }}
                             className="tab"
                             activeClassName="active"
                             onClick={this.tabClickHandler.bind(
@@ -165,6 +176,17 @@ export class DeviceDetail extends Component {
                                 path={"/devices/device-details/telemetry"}
                                 render={() => (
                                     <TelemetryContainer
+                                        deviceId={this.state.deviceId}
+                                    />
+                                )}
+                            />
+                            <Route
+                                exact
+                                path={
+                                    "/devices/device-details/device-uploads"
+                                }
+                                render={() => (
+                                    <DeviceUploadsContainer
                                         deviceId={this.state.deviceId}
                                     />
                                 )}

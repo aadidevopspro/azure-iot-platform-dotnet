@@ -476,8 +476,8 @@
             },
             "deviceUploads": {
                 "title": "Device Uploads",
-                "description": "File Uploads from Device",
-                "noneExist": "No Files are uploaded from Device.",
+                "description": "File Uploads for this Device",
+                "noneExist": "No Files are uploaded for this  Device.",
                 "fileName": "File Name",
                 "action": "Action",
                 "property": "Property",
@@ -557,8 +557,8 @@
                 },
                 "deviceUploads": {
                     "title": "Device Uploads",
-                    "description": "File Uploads from Device",
-                    "noneExist": "No Files are uploaded from Device.",
+                    "description": "File Uploads for this Device",
+                    "noneExist": "No Files are uploaded for this Device.",
                     "fileName": "File Name",
                     "action": "Action",
                     "property": "Property",

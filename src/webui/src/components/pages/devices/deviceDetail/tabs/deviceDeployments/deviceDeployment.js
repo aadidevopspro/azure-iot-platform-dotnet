@@ -9,20 +9,17 @@ import {
     PropertyGridHeader as GridHeader,
     PropertyRow as Row,
     PropertyCell as Cell,
-    SectionDesc,
     Hyperlink,
-    Flyout,
 } from "components/shared";
 
-import "./../deviceDetail.scss";
-const Section = Flyout.Section;
+import "./../../deviceDetail.scss";
 export class DeviceDeployments extends Component {
     constructor(props) {
         super(props);
         this.state = {
             deviceDeployments: undefined,
+            deviceId: props.deviceId,
         };
-        this.baseState = this.state;
     }
 
     componentDidMount() {
@@ -55,24 +52,14 @@ export class DeviceDeployments extends Component {
         return (
             <div className="device-details-container">
                 <div className="device-details-container">
-                    <Section.Container>
-                        <Section.Header>
-                            {t(
-                                "devices.flyouts.details.deviceDeployments.title"
-                            )}
-                        </Section.Header>
-                        <Section.Content>
-                            <SectionDesc>
-                                {t(
-                                    "devices.flyouts.details.deviceDeployments.description"
-                                )}
-                            </SectionDesc>
+                    <div>
+                        <div>
                             <div className="device-details-deviceDeployments-contentbox">
                                 {deviceDeployments.length === 0 &&
                                     t(
                                         "devices.flyouts.details.deviceDeployments.noneExist"
                                     )}
-                                {deviceDeployments.length >= 0 && (
+                                {deviceDeployments.length > 0 && (
                                     <Grid className="device-details-deviceDeployments">
                                         <GridHeader>
                                             <Row>
@@ -124,8 +111,8 @@ export class DeviceDeployments extends Component {
                                     </Grid>
                                 )}
                             </div>
-                        </Section.Content>
-                    </Section.Container>
+                        </div>
+                    </div>
                 </div>
             </div>
         );
