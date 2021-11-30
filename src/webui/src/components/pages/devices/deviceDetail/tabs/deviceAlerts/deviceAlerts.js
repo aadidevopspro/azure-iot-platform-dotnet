@@ -82,25 +82,30 @@ export class DeviceAlerts extends Component {
     };
 
     render() {
-        const isPending = this.state.isAlertsPending && this.props.isRulesPending,
-        rulesGridProps = {
-            rowData: isPending
-                ? undefined
-                : this.applyRuleNames(
-                      this.state.alerts || [],
-                      this.props.rules || []
-                  ),
-            t: this.props.t,
-            deviceGroups: this.props.deviceGroups,
-            domLayout: "autoHeight",
-            columnDefs: translateColumnDefs(this.props.t, this.columnDefs),
-            suppressFlyouts: true,
-        };
+        const isPending =
+                this.state.isAlertsPending && this.props.isRulesPending,
+            rulesGridProps = {
+                rowData: isPending
+                    ? undefined
+                    : this.applyRuleNames(
+                          this.state.alerts || [],
+                          this.props.rules || []
+                      ),
+                t: this.props.t,
+                deviceGroups: this.props.deviceGroups,
+                domLayout: "autoHeight",
+                columnDefs: translateColumnDefs(this.props.t, this.columnDefs),
+                suppressFlyouts: true,
+            };
 
-        return (<Fragment>{!this.state.isAlertsPending &&
-            this.state.alerts &&
-            this.state.alerts.length > 0 && (
-                <RulesGrid {...rulesGridProps} />
-            )}</Fragment>);
+        return (
+            <Fragment>
+                {!this.state.isAlertsPending &&
+                    this.state.alerts &&
+                    this.state.alerts.length > 0 && (
+                        <RulesGrid {...rulesGridProps} />
+                    )}
+            </Fragment>
+        );
     }
 }

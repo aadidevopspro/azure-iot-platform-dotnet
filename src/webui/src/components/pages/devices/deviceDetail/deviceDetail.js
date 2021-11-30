@@ -60,18 +60,21 @@ export class DeviceDetail extends Component {
                         <NavLink
                             to={{
                                 pathname: "/devices/device-details/alerts",
-                                state: { deviceId: this.state.deviceId }
+                                state: { deviceId: this.state.deviceId },
                             }}
                             className="tab"
                             activeClassName="active"
-                            onClick={this.tabClickHandler.bind(this, "DeviceAlertsTab")}
+                            onClick={this.tabClickHandler.bind(
+                                this,
+                                "DeviceAlertsTab"
+                            )}
                         >
                             {this.props.t("devices.details.alerts.title")}
                         </NavLink>
                         <NavLink
                             to={{
                                 pathname: "/devices/device-details/telemetry",
-                                state: { deviceId: this.state.deviceId }
+                                state: { deviceId: this.state.deviceId },
                             }}
                             className="tab"
                             activeClassName="active"

@@ -29,7 +29,9 @@ export const DevicesRouter = () => (
         />
         <Route
             exact
-            path={"/devices/device-details/:path(device-deployments|alerts|telemetry)"}
+            path={
+                "/devices/device-details/:path(device-deployments|alerts|telemetry)"
+            }
             render={(routeProps) => <DeviceDetailContainer {...routeProps} />}
         />
         <Route

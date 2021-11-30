@@ -5,12 +5,8 @@ import { Observable, Subject } from "rxjs";
 
 import Config from "app.config";
 import { TelemetryService } from "services";
-import {
-    int,
-} from "utilities";
-import {
-    TimeSeriesInsightsLinkContainer,
-} from "components/shared";
+import { int } from "utilities";
+import { TimeSeriesInsightsLinkContainer } from "components/shared";
 import { TimeIntervalDropdownContainer as TimeIntervalDropdown } from "components/shell/timeIntervalDropdown";
 import {
     TelemetryChartContainer as TelemetryChart,
@@ -35,13 +31,13 @@ export class Telemetry extends Component {
 
     componentDidMount() {
         const {
-            device = {},
-            device: { telemetry: { interval = "0" } = {} } = {},
-        } = this.props,
+                device = {},
+                device: { telemetry: { interval = "0" } = {} } = {},
+            } = this.props,
             deviceId = device.id;
         const [hours = 0, minutes = 0, seconds = 0] = interval
-            .split(":")
-            .map(int),
+                .split(":")
+                .map(int),
             refreshInterval = ((hours * 60 + minutes) * 60 + seconds) * 1000,
             // Telemetry stream - START
             onPendingStart = () => this.setState({ telemetryIsPending: true }),
@@ -64,7 +60,7 @@ export class Telemetry extends Component {
                                 this.telemetryRefresh$ // Previous request complete
                                     .delay(
                                         refreshInterval ||
-                                        Config.dashboardRefreshInterval
+                                            Config.dashboardRefreshInterval
                                     ) // Wait to refresh
                                     .do(onPendingStart)
                                     .flatMap((_) =>
@@ -101,12 +97,9 @@ export class Telemetry extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        const {
-            resetPendingAndError,
-            device,
-        } = nextProps;
+        const { resetPendingAndError, device } = nextProps;
         let tempState = {};
-       
+
         if ((this.props.device || {}).id !== device.id) {
             // Reset state if the device changes.
             resetPendingAndError();
@@ -146,24 +139,20 @@ export class Telemetry extends Component {
     }
 
     render() {
-        const {
-            t,
-            device,
-            theme,
-            timeSeriesExplorerUrl,
-        } = this.props,
+        const { t, device, theme, timeSeriesExplorerUrl } = this.props,
             { telemetry } = this.state,
             // Add parameters to Time Series Insights Url
 
             timeSeriesParamUrl = timeSeriesExplorerUrl
                 ? timeSeriesExplorerUrl +
-                `&relativeMillis=1800000&timeSeriesDefinitions=[{"name":"${device.id
-                }","measureName":"${Object.keys(telemetry).sort()[0]
-                }","predicate":"'${device.id}'"}]`
+                  `&relativeMillis=1800000&timeSeriesDefinitions=[{"name":"${
+                      device.id
+                  }","measureName":"${
+                      Object.keys(telemetry).sort()[0]
+                  }","predicate":"'${device.id}'"}]`
                 : undefined;
 
         return (
-
             <Fragment>
                 <TimeIntervalDropdown
                     onChange={this.updateTimeInterval}
@@ -179,10 +168,7 @@ export class Telemetry extends Component {
                 <TelemetryChart
                     className="telemetry-chart"
                     t={t}
-                    limitExceeded={
-                        this.state
-                            .telemetryQueryExceededLimit
-                    }
+                    limitExceeded={this.state.telemetryQueryExceededLimit}
                     telemetry={telemetry}
                     theme={theme}
                     colors={chartColorObjects}
