@@ -20,7 +20,7 @@ import {
     SectionDesc,
 } from "components/shared";
 import Flyout from "components/shared/flyout";
-//import { Label, Pivot, PivotItem } from "@fluentui/react";
+import { Pivot, PivotItem } from "@fluentui/react";
 
 const Section = Flyout.Section,
     serializeNestedDeviceProperties = (parentName, value) => {
@@ -97,314 +97,322 @@ export class DeviceTags extends Component {
                 )}
                 {!!device && (
                     <div className="device-details-container">
-                        {/* <Pivot
+                        <Pivot
                             aria-label="Remove Pivot Example"
                             linkSize="large"
-                            linkFormat="tabs"
                         >
-                            <PivotItem headerText="Foo" itemKey="Foo" key="Foo">
-                                <Label>
-                                    Click the button below to show/hide this
-                                    pivot item.
-                                </Label>
-                                <Label>
-                                    The selected item will not change when the
-                                    number of pivot items changes.
-                                </Label>
-                                <Label>
-                                    If the selected item was removed, the new
-                                    first item will be selected.
-                                </Label>
-                            </PivotItem>
-                            <PivotItem headerText="Bar" itemKey="Bar" key="Bar">
-                                <Label>Pivot #2</Label>
-                            </PivotItem>
-                            <PivotItem headerText="Bas" itemKey="Bas" key="Bas">
-                                <Label>Pivot #3</Label>
-                            </PivotItem>
-                            <PivotItem headerText="Biz" itemKey="Biz" key="Biz">
-                                <Label>Pivot #4</Label>
-                            </PivotItem>
-                        </Pivot> */}
-                        <Section.Container>
-                            <Section.Header>
-                                {t("devices.flyouts.details.tags.title")}
-                            </Section.Header>
-                            <Section.Content>
-                                <SectionDesc>
-                                    <Trans
-                                        i18nKey={
-                                            "devices.flyouts.details.tags.description"
-                                        }
-                                    >
-                                        To edit, close this panel, click on
-                                        <strong>
-                                            {{
-                                                jobs: t(
-                                                    "devices.flyouts.jobs.title"
-                                                ),
-                                            }}
-                                        </strong>
-                                        then select
-                                        <strong>
-                                            {{
-                                                tags: t(
-                                                    "devices.flyouts.jobs.tags.radioLabel"
-                                                ),
-                                            }}
-                                        </strong>
-                                        .
-                                    </Trans>
-                                </SectionDesc>
-                                {tags.length === 0 &&
-                                    t("devices.flyouts.details.tags.noneExist")}
-                                {tags.length > 0 && (
-                                    <Grid>
-                                        <GridHeader>
-                                            <Row>
-                                                <Cell className="col-3">
-                                                    {t(
-                                                        "devices.flyouts.details.tags.keyHeader"
-                                                    )}
-                                                </Cell>
-                                                <Cell className="col-7">
-                                                    {t(
-                                                        "devices.flyouts.details.tags.valueHeader"
-                                                    )}
-                                                </Cell>
-                                            </Row>
-                                        </GridHeader>
-                                        <GridBody>
-                                            {tags.map(
-                                                ([tagName, tagValue], idx) => (
-                                                    <Row key={idx}>
+                            <PivotItem
+                                headerText="Tags"
+                                itemKey="Tags"
+                                key="Tags"
+                            >
+                                <Section.Container>
+                                    {/* <Section.Header>
+                                        {t(
+                                            "devices.flyouts.details.tags.title"
+                                        )}
+                                    </Section.Header> */}
+                                    <Section.Content>
+                                        <SectionDesc>
+                                            <Trans
+                                                i18nKey={
+                                                    "devices.flyouts.details.tags.description"
+                                                }
+                                            >
+                                                To edit, close this panel, click
+                                                on
+                                                <strong>
+                                                    {{
+                                                        jobs: t(
+                                                            "devices.flyouts.jobs.title"
+                                                        ),
+                                                    }}
+                                                </strong>
+                                                then select
+                                                <strong>
+                                                    {{
+                                                        tags: t(
+                                                            "devices.flyouts.jobs.tags.radioLabel"
+                                                        ),
+                                                    }}
+                                                </strong>
+                                                .
+                                            </Trans>
+                                        </SectionDesc>
+                                        {tags.length === 0 &&
+                                            t(
+                                                "devices.flyouts.details.tags.noneExist"
+                                            )}
+                                        {tags.length > 0 && (
+                                            <Grid>
+                                                <GridHeader>
+                                                    <Row>
                                                         <Cell className="col-3">
-                                                            {tagName}
+                                                            {t(
+                                                                "devices.flyouts.details.tags.keyHeader"
+                                                            )}
                                                         </Cell>
                                                         <Cell className="col-7">
-                                                            {tagValue.toString()}
+                                                            {t(
+                                                                "devices.flyouts.details.tags.valueHeader"
+                                                            )}
                                                         </Cell>
                                                     </Row>
-                                                )
-                                            )}
-                                        </GridBody>
-                                    </Grid>
-                                )}
-                            </Section.Content>
-                        </Section.Container>
-
-                        <Section.Container>
-                            <Section.Header>
-                                {t("devices.flyouts.details.methods.title")}
-                            </Section.Header>
-                            <Section.Content>
-                                <SectionDesc>
-                                    <Trans
-                                        i18nKey={
-                                            "devices.flyouts.details.methods.description"
-                                        }
-                                    >
-                                        To edit, close this panel, click on
-                                        <strong>
-                                            {{
-                                                jobs: t(
-                                                    "devices.flyouts.jobs.title"
-                                                ),
-                                            }}
-                                        </strong>
-                                        then select
-                                        <strong>
-                                            {{
-                                                methods: t(
-                                                    "devices.flyouts.jobs.methods.radioLabel"
-                                                ),
-                                            }}
-                                        </strong>
-                                        .
-                                    </Trans>
-                                </SectionDesc>
-                                {device.methods.length === 0 ? (
-                                    t(
-                                        "devices.flyouts.details.methods.noneExist"
-                                    )
-                                ) : (
-                                    <Grid>
-                                        {device.methods.map(
-                                            (methodName, idx) => (
-                                                <Row key={idx}>
-                                                    <Cell>{methodName}</Cell>
-                                                </Row>
-                                            )
+                                                </GridHeader>
+                                                <GridBody>
+                                                    {tags.map(
+                                                        (
+                                                            [tagName, tagValue],
+                                                            idx
+                                                        ) => (
+                                                            <Row key={idx}>
+                                                                <Cell className="col-3">
+                                                                    {tagName}
+                                                                </Cell>
+                                                                <Cell className="col-7">
+                                                                    {tagValue.toString()}
+                                                                </Cell>
+                                                            </Row>
+                                                        )
+                                                    )}
+                                                </GridBody>
+                                            </Grid>
                                         )}
-                                    </Grid>
-                                )}
-                            </Section.Content>
-                        </Section.Container>
-
-                        <Section.Container>
-                            <Section.Header>
-                                {t("devices.flyouts.details.properties.title")}
-                            </Section.Header>
-                            <Section.Content>
-                                <SectionDesc>
-                                    <Trans
-                                        i18nKey={
-                                            "devices.flyouts.details.properties.description"
-                                        }
-                                    >
-                                        To edit, close this panel, click on
-                                        <strong>
-                                            {{
-                                                jobs: t(
-                                                    "devices.flyouts.jobs.title"
-                                                ),
-                                            }}
-                                        </strong>
-                                        then select
-                                        <strong>
-                                            {{
-                                                properties: t(
-                                                    "devices.flyouts.jobs.properties.radioLabel"
-                                                ),
-                                            }}
-                                        </strong>
-                                        .
-                                    </Trans>
-                                </SectionDesc>
-                                {properties.length === 0 &&
-                                    t(
-                                        "devices.flyouts.details.properties.noneExist"
-                                    )}
-                                {properties.length > 0 && (
-                                    <ComponentArray>
-                                        <Grid>
-                                            <GridHeader>
-                                                <Row>
-                                                    <Cell className="col-3">
-                                                        {t(
-                                                            "devices.flyouts.details.properties.keyHeader"
-                                                        )}
-                                                    </Cell>
-                                                    <Cell className="col-15">
-                                                        {t(
-                                                            "devices.flyouts.details.properties.valueHeader"
-                                                        )}
-                                                    </Cell>
-                                                </Row>
-                                            </GridHeader>
-                                            <GridBody>
-                                                {properties.map(
-                                                    (
-                                                        [
-                                                            propertyName,
-                                                            propertyValue,
-                                                        ],
-                                                        idx
-                                                    ) => {
-                                                        const desiredPropertyValue =
-                                                                device
-                                                                    .desiredProperties[
-                                                                    propertyName
-                                                                ],
-                                                            serializedProperties =
-                                                                serializeNestedDeviceProperties(
+                                    </Section.Content>
+                                </Section.Container>
+                            </PivotItem>
+                            <PivotItem
+                                headerText="Methods"
+                                itemKey="Methods"
+                                key="Methods"
+                            >
+                                <Section.Container>
+                                    {/* <Section.Header>
+                                        {t(
+                                            "devices.flyouts.details.methods.title"
+                                        )}
+                                    </Section.Header> */}
+                                    <Section.Content>
+                                        <SectionDesc>
+                                            <Trans
+                                                i18nKey={
+                                                    "devices.flyouts.details.methods.description"
+                                                }
+                                            >
+                                                To edit, close this panel, click
+                                                on
+                                                <strong>
+                                                    {{
+                                                        jobs: t(
+                                                            "devices.flyouts.jobs.title"
+                                                        ),
+                                                    }}
+                                                </strong>
+                                                then select
+                                                <strong>
+                                                    {{
+                                                        methods: t(
+                                                            "devices.flyouts.jobs.methods.radioLabel"
+                                                        ),
+                                                    }}
+                                                </strong>
+                                                .
+                                            </Trans>
+                                        </SectionDesc>
+                                        {device.methods.length === 0 ? (
+                                            t(
+                                                "devices.flyouts.details.methods.noneExist"
+                                            )
+                                        ) : (
+                                            <Grid>
+                                                {device.methods.map(
+                                                    (methodName, idx) => (
+                                                        <Row key={idx}>
+                                                            <Cell>
+                                                                {methodName}
+                                                            </Cell>
+                                                        </Row>
+                                                    )
+                                                )}
+                                            </Grid>
+                                        )}
+                                    </Section.Content>
+                                </Section.Container>
+                            </PivotItem>
+                            <PivotItem
+                                headerText="Properties"
+                                itemKey="Properties"
+                                key="Properties"
+                            >
+                                <Section.Container>
+                                    {/* <Section.Header>
+                                        {t(
+                                            "devices.flyouts.details.properties.title"
+                                        )}
+                                    </Section.Header> */}
+                                    <Section.Content>
+                                        <SectionDesc>
+                                            <Trans
+                                                i18nKey={
+                                                    "devices.flyouts.details.properties.description"
+                                                }
+                                            >
+                                                To edit, close this panel, click
+                                                on
+                                                <strong>
+                                                    {{
+                                                        jobs: t(
+                                                            "devices.flyouts.jobs.title"
+                                                        ),
+                                                    }}
+                                                </strong>
+                                                then select
+                                                <strong>
+                                                    {{
+                                                        properties: t(
+                                                            "devices.flyouts.jobs.properties.radioLabel"
+                                                        ),
+                                                    }}
+                                                </strong>
+                                                .
+                                            </Trans>
+                                        </SectionDesc>
+                                        {properties.length === 0 &&
+                                            t(
+                                                "devices.flyouts.details.properties.noneExist"
+                                            )}
+                                        {properties.length > 0 && (
+                                            <ComponentArray>
+                                                <Grid>
+                                                    <GridHeader>
+                                                        <Row>
+                                                            <Cell className="col-3">
+                                                                {t(
+                                                                    "devices.flyouts.details.properties.keyHeader"
+                                                                )}
+                                                            </Cell>
+                                                            <Cell className="col-15">
+                                                                {t(
+                                                                    "devices.flyouts.details.properties.valueHeader"
+                                                                )}
+                                                            </Cell>
+                                                        </Row>
+                                                    </GridHeader>
+                                                    <GridBody>
+                                                        {properties.map(
+                                                            (
+                                                                [
                                                                     propertyName,
-                                                                    propertyValue
-                                                                ),
-                                                            rows = [];
-                                                        Object.entries(
-                                                            serializedProperties
-                                                        ).forEach(
-                                                            ([
-                                                                propertyDisplayName,
-                                                                value,
-                                                            ]) => {
-                                                                const displayValue =
-                                                                        !desiredPropertyValue ||
-                                                                        value ===
-                                                                            desiredPropertyValue
-                                                                            ? value.toString()
-                                                                            : t(
-                                                                                  "devices.flyouts.details.properties.syncing",
-                                                                                  {
-                                                                                      reportedPropertyValue:
-                                                                                          value.toString(),
-                                                                                      desiredPropertyValue:
-                                                                                          desiredPropertyValue.toString(),
-                                                                                  }
-                                                                              ),
-                                                                    truncatedDisplayName =
-                                                                        propertyDisplayName.length <=
-                                                                        20
-                                                                            ? propertyDisplayName
-                                                                            : `...${propertyDisplayName.substring(
-                                                                                  propertyDisplayName.length -
-                                                                                      17
-                                                                              )}`;
-                                                                rows.push(
-                                                                    <Row
-                                                                        key={
-                                                                            idx
-                                                                        }
-                                                                    >
-                                                                        <Cell className="col-3">
-                                                                            <Balloon
-                                                                                position={
-                                                                                    BalloonPosition.Left
-                                                                                }
-                                                                                tooltip={
-                                                                                    <Trans>
-                                                                                        {
-                                                                                            propertyDisplayName
-                                                                                        }
-                                                                                    </Trans>
+                                                                    propertyValue,
+                                                                ],
+                                                                idx
+                                                            ) => {
+                                                                const desiredPropertyValue =
+                                                                        device
+                                                                            .desiredProperties[
+                                                                            propertyName
+                                                                        ],
+                                                                    serializedProperties =
+                                                                        serializeNestedDeviceProperties(
+                                                                            propertyName,
+                                                                            propertyValue
+                                                                        ),
+                                                                    rows = [];
+                                                                Object.entries(
+                                                                    serializedProperties
+                                                                ).forEach(
+                                                                    ([
+                                                                        propertyDisplayName,
+                                                                        value,
+                                                                    ]) => {
+                                                                        const displayValue =
+                                                                                !desiredPropertyValue ||
+                                                                                value ===
+                                                                                    desiredPropertyValue
+                                                                                    ? value.toString()
+                                                                                    : t(
+                                                                                          "devices.flyouts.details.properties.syncing",
+                                                                                          {
+                                                                                              reportedPropertyValue:
+                                                                                                  value.toString(),
+                                                                                              desiredPropertyValue:
+                                                                                                  desiredPropertyValue.toString(),
+                                                                                          }
+                                                                                      ),
+                                                                            truncatedDisplayName =
+                                                                                propertyDisplayName.length <=
+                                                                                20
+                                                                                    ? propertyDisplayName
+                                                                                    : `...${propertyDisplayName.substring(
+                                                                                          propertyDisplayName.length -
+                                                                                              17
+                                                                                      )}`;
+                                                                        rows.push(
+                                                                            <Row
+                                                                                key={
+                                                                                    idx
                                                                                 }
                                                                             >
-                                                                                {
-                                                                                    truncatedDisplayName
-                                                                                }
-                                                                            </Balloon>
-                                                                        </Cell>
-                                                                        <Cell className="col-15">
-                                                                            {
-                                                                                displayValue
-                                                                            }
-                                                                        </Cell>
-                                                                    </Row>
+                                                                                <Cell className="col-3">
+                                                                                    <Balloon
+                                                                                        position={
+                                                                                            BalloonPosition.Left
+                                                                                        }
+                                                                                        tooltip={
+                                                                                            <Trans>
+                                                                                                {
+                                                                                                    propertyDisplayName
+                                                                                                }
+                                                                                            </Trans>
+                                                                                        }
+                                                                                    >
+                                                                                        {
+                                                                                            truncatedDisplayName
+                                                                                        }
+                                                                                    </Balloon>
+                                                                                </Cell>
+                                                                                <Cell className="col-15">
+                                                                                    {
+                                                                                        displayValue
+                                                                                    }
+                                                                                </Cell>
+                                                                            </Row>
+                                                                        );
+                                                                    }
                                                                 );
+                                                                return rows;
                                                             }
-                                                        );
-                                                        return rows;
-                                                    }
-                                                )}
-                                            </GridBody>
-                                        </Grid>
-                                        <Grid className="device-properties-actions">
-                                            <Row>
-                                                <Cell className="col-8">
-                                                    {t(
-                                                        "devices.flyouts.details.properties.copyAllProperties"
-                                                    )}
-                                                </Cell>
-                                                <Cell className="col-2">
-                                                    <Btn
-                                                        svg={svgs.copy}
-                                                        onClick={
-                                                            this
-                                                                .copyDevicePropertiesToClipboard
-                                                        }
-                                                    >
-                                                        {t(
-                                                            "devices.flyouts.details.properties.copy"
                                                         )}
-                                                    </Btn>
-                                                </Cell>
-                                            </Row>
-                                        </Grid>
-                                    </ComponentArray>
-                                )}
-                            </Section.Content>
-                        </Section.Container>
+                                                    </GridBody>
+                                                </Grid>
+                                                <Grid className="device-properties-actions">
+                                                    <Row>
+                                                        <Cell className="col-8">
+                                                            {t(
+                                                                "devices.flyouts.details.properties.copyAllProperties"
+                                                            )}
+                                                        </Cell>
+                                                        <Cell className="col-2">
+                                                            <Btn
+                                                                svg={svgs.copy}
+                                                                onClick={
+                                                                    this
+                                                                        .copyDevicePropertiesToClipboard
+                                                                }
+                                                            >
+                                                                {t(
+                                                                    "devices.flyouts.details.properties.copy"
+                                                                )}
+                                                            </Btn>
+                                                        </Cell>
+                                                    </Row>
+                                                </Grid>
+                                            </ComponentArray>
+                                        )}
+                                    </Section.Content>
+                                </Section.Container>
+                            </PivotItem>
+                        </Pivot>
                     </div>
                 )}
             </div>
