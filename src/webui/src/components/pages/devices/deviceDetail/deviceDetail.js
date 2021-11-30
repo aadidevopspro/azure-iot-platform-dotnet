@@ -11,14 +11,15 @@ import {
     PageTitle,
 } from "components/shared";
 import { toDiagnosticsModel } from "services/models";
-import "./deviceDetail.scss";
 import { NavLink } from "react-router-dom";
 import { Route, Switch } from "react-router-dom";
 import { DeviceDeploymentsContainer } from "./tabs/deviceDeployments/deviceDeployment.container";
 import { DeviceAlertsContainer } from "./tabs/deviceAlerts/deviceAlerts.container";
 import { TelemetryContainer } from "./tabs/telemetry/telemetry.container";
 import { DeviceUploadsContainer } from "./tabs/deviceUploads";
-import { DeviceTagsContainer } from "./tabs/tags/deviceTags.container";
+import { DeviceTagsContainer } from "./tabs/deviceTags/deviceTags.container";
+const classnames = require("classnames/bind");
+const css = classnames.bind(require("./deviceDetail.module.scss"));
 
 export class DeviceDetail extends Component {
     constructor(props) {
@@ -53,18 +54,21 @@ export class DeviceDetail extends Component {
                     </ContextMenuAlign>
                 </ContextMenu>
 
-                <PageContent className="maintenance-container summary-container">
+                <PageContent
+                    className={`${css("maintenance-container")}  
+                    ${css("summary-container")}`}
+                >
                     <PageTitle
                         titleValue={this.props.t("devices.details.title")}
                     />
-                    <div className="tab-container">
+                    <div className={css("tab-container")}>
                         <NavLink
                             to={{
                                 pathname: "/devices/device-details/alerts",
                                 state: { deviceId: this.state.deviceId },
                             }}
-                            className="tab"
-                            activeClassName="active"
+                            className={css("tab")}
+                            activeClassName={css("active")}
                             onClick={this.tabClickHandler.bind(
                                 this,
                                 "DeviceAlertsTab"
@@ -77,8 +81,8 @@ export class DeviceDetail extends Component {
                                 pathname: "/devices/device-details/telemetry",
                                 state: { deviceId: this.state.deviceId },
                             }}
-                            className="tab"
-                            activeClassName="active"
+                            className={css("tab")}
+                            activeClassName={css("active")}
                             onClick={this.tabClickHandler.bind(
                                 this,
                                 "TelemetryTab"
@@ -88,24 +92,24 @@ export class DeviceDetail extends Component {
                         </NavLink>
                         <NavLink
                             to={"/devices/device-details/tags"}
-                            className="tab"
-                            activeClassName="active"
+                            className={css("tab")}
+                            activeClassName={css("active")}
                             onClick={this.tabClickHandler.bind(this, "TagsTab")}
                         >
                             {this.props.t("devices.details.tags.title")}
                         </NavLink>
                         <NavLink
                             to={"/devices/device-details/tags"}
-                            className="tab"
-                            activeClassName="active"
+                            className={css("tab")}
+                            activeClassName={css("active")}
                             onClick={this.tabClickHandler.bind(this, "JobsTab")}
                         >
                             {this.props.t("devices.details.diagnostics.title")}
                         </NavLink>
                         <NavLink
                             to={"/devices/device-details/tags"}
-                            className="tab"
-                            activeClassName="active"
+                            className={css("tab")}
+                            activeClassName={css("active")}
                             onClick={this.tabClickHandler.bind(this, "JobsTab")}
                         >
                             {this.props.t("devices.details.modules.title")}
@@ -116,8 +120,8 @@ export class DeviceDetail extends Component {
                                     "/devices/device-details/device-uploads",
                                 state: { deviceId: this.state.deviceId },
                             }}
-                            className="tab"
-                            activeClassName="active"
+                            className={css("tab")}
+                            activeClassName={css("active")}
                             onClick={this.tabClickHandler.bind(
                                 this,
                                 "DeviceUploadsTab"
@@ -133,8 +137,8 @@ export class DeviceDetail extends Component {
                                     "/devices/device-details/device-deployments",
                                 state: { deviceId: this.state.deviceId },
                             }}
-                            className="tab"
-                            activeClassName="active"
+                            className={css("tab")}
+                            activeClassName={css("active")}
                             onClick={this.tabClickHandler.bind(
                                 this,
                                 "DeviceDeploymentsTab"

@@ -17,7 +17,7 @@ import {
     PropertyCell as Cell,
 } from "components/shared";
 
-import "./../../deviceDetail.scss";
+import "./../../deviceDetail.module.scss";
 export class DeviceUploads extends Component {
     constructor(props) {
         super(props);

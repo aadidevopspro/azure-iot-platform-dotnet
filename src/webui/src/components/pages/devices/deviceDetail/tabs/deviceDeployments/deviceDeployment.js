@@ -12,7 +12,7 @@ import {
     Hyperlink,
 } from "components/shared";
 
-import "./../../deviceDetail.scss";
+import "./../../deviceDetail.module.scss";
 export class DeviceDeployments extends Component {
     constructor(props) {
         super(props);
