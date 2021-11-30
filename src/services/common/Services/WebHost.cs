@@ -89,7 +89,7 @@ namespace Mmm.Iot.Common.Services
 
                 var azureAppConfigConfig = new AppConfig(configurationBuilder);
                 config.AddConfiguration(azureAppConfigConfig.Configuration);
-                config.AddAzureKeyVault(new SecretClient( new Uri($"https://{initialAppConfig.KeyVaultName}.vault.azure.net/"), new DefaultAzureCredential()),new KeyVaultSecretManager());
+                config.AddAzureKeyVault(new SecretClient(new Uri($"https://{initialAppConfig.KeyVaultName}.vault.azure.net/"), new DefaultAzureCredential()), new KeyVaultSecretManager());
                 config.AddConfiguration(initialAppConfig.Configuration);
                 azureAppConfig = azureAppConfigConfig;
             });
