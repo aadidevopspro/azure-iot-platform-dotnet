@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft. All rights reserved.
 
 import { connect } from "react-redux";
-import { withNamespaces } from "react-i18next";
+import { withTranslation } from "react-i18next";
 import {
     redux as appRedux,
     epics as appEpics,
@@ -37,6 +37,6 @@ const mapStateToProps = (state, props) => ({
             dispatch(appEpics.actions.logEvent(diagnosticsModel)),
     });
 
-export const TelemetryContainer = withNamespaces()(
+export const TelemetryContainer = withTranslation()(
     connect(mapStateToProps, mapDispatchToProps)(Telemetry)
 );

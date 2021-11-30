@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft. All rights reserved.
 
 import { connect } from "react-redux";
-import { withNamespaces } from "react-i18next";
+import { withTranslation } from "react-i18next";
 import { DeviceDetail } from "./deviceDetail";
 import {
     redux as appRedux,
@@ -57,6 +57,6 @@ const mapStateToProps = (state, props) => ({
             dispatch(appEpics.actions.logEvent(diagnosticsModel)),
     });
 
-export const DeviceDetailContainer = withNamespaces()(
+export const DeviceDetailContainer = withTranslation()(
     connect(mapStateToProps, mapDispatchToProps)(DeviceDetail)
 );

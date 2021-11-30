@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft. All rights reserved.
 
 import { connect } from "react-redux";
-import { withNamespaces } from "react-i18next";
+import { withTranslation } from "react-i18next";
 import { DeviceDeployments } from "./deviceDeployment";
 import { getTheme } from "store/reducers/appReducer";
 import { getDeviceById } from "store/reducers/devicesReducer";
@@ -12,6 +12,6 @@ const mapStateToProps = (state, props) => ({
     theme: getTheme(state),
 });
 
-export const DeviceDeploymentsContainer = withNamespaces()(
+export const DeviceDeploymentsContainer = withTranslation()(
     connect(mapStateToProps, null)(DeviceDeployments)
 );

@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft. All rights reserved.
 
 import { connect } from "react-redux";
-import { withNamespaces } from "react-i18next";
+import { withTranslation } from "react-i18next";
 import { DeviceAlerts } from "./deviceAlerts";
 import {
     redux as appRedux,
@@ -44,6 +44,6 @@ const mapStateToProps = (state, props) => ({
             dispatch(appRedux.actions.updateTimeInterval(timeInterval)),
     });
 
-export const DeviceAlertsContainer = withNamespaces()(
+export const DeviceAlertsContainer = withTranslation()(
     connect(mapStateToProps, mapDispatchToProps)(DeviceAlerts)
 );

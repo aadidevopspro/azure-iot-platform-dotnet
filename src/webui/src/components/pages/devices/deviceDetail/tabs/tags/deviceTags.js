@@ -310,10 +310,11 @@ export class DeviceTags extends Component {
                                                                     .desiredProperties[
                                                                     propertyName
                                                                 ],
-                                                            serializedProperties = serializeNestedDeviceProperties(
-                                                                propertyName,
-                                                                propertyValue
-                                                            ),
+                                                            serializedProperties =
+                                                                serializeNestedDeviceProperties(
+                                                                    propertyName,
+                                                                    propertyValue
+                                                                ),
                                                             rows = [];
                                                         Object.entries(
                                                             serializedProperties
@@ -330,8 +331,10 @@ export class DeviceTags extends Component {
                                                                             : t(
                                                                                   "devices.flyouts.details.properties.syncing",
                                                                                   {
-                                                                                      reportedPropertyValue: value.toString(),
-                                                                                      desiredPropertyValue: desiredPropertyValue.toString(),
+                                                                                      reportedPropertyValue:
+                                                                                          value.toString(),
+                                                                                      desiredPropertyValue:
+                                                                                          desiredPropertyValue.toString(),
                                                                                   }
                                                                               ),
                                                                     truncatedDisplayName =
