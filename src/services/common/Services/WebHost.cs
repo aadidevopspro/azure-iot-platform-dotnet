@@ -4,7 +4,9 @@
 using System;
 using System.IO;
 using System.Reflection;
+using Azure.Extensions.AspNetCore.Configuration.Secrets;
 using Azure.Identity;
+using Azure.Security.KeyVault.Secrets;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.AzureAppConfiguration;
@@ -87,10 +89,7 @@ namespace Mmm.Iot.Common.Services
 
                 var azureAppConfigConfig = new AppConfig(configurationBuilder);
                 config.AddConfiguration(azureAppConfigConfig.Configuration);
-                config.AddAzureKeyVault(
-                    $"https://{azureAppConfigConfig.Global.KeyVault.Name}.vault.azure.net/",
-                    azureAppConfigConfig.Global.AzureActiveDirectory.AppId,
-                    azureAppConfigConfig.Global.AzureActiveDirectory.AppSecret);
+                config.AddAzureKeyVault(new SecretClient( new Uri($"https://{initialAppConfig.KeyVaultName}.vault.azure.net/"), new DefaultAzureCredential()),new KeyVaultSecretManager());
                 config.AddConfiguration(initialAppConfig.Configuration);
                 azureAppConfig = azureAppConfigConfig;
             });

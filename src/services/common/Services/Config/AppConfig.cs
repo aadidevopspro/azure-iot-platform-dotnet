@@ -27,6 +27,8 @@ namespace Mmm.Iot.Common.Services.Config
 
         public virtual string AppConfigEndpoint { get; set; }
 
+        public virtual string KeyVaultName { get; set; }
+
         public virtual string ManagedIdentityClientId { get; set; }
 
         public virtual string AppConfigurationConnectionString { get; set; }
