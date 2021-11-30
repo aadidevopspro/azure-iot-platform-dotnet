@@ -14,8 +14,9 @@ import { toDiagnosticsModel } from "services/models";
 import "./deviceDetail.scss";
 import { NavLink } from "react-router-dom";
 import { Route, Switch } from "react-router-dom";
-import { Notifications } from "components/pages/maintenance/summary/notifications";
 import { DeviceDeploymentsContainer } from "./tabs/deviceDeployment.container";
+import { DeviceAlertsContainer } from "./tabs/deviceAlerts/deviceAlerts.container";
+import { TelemetryContainer } from "./tabs/telemetry/telemetry.container";
 
 export class DeviceDetail extends Component {
     constructor(props) {
@@ -57,20 +58,26 @@ export class DeviceDetail extends Component {
                     />
                     <div className="tab-container">
                         <NavLink
-                            to={"/devices/device-details/tags"}
+                            to={{
+                                pathname: "/devices/device-details/alerts",
+                                state: { deviceId: this.state.deviceId }
+                            }}
                             className="tab"
                             activeClassName="active"
-                            onClick={this.tabClickHandler.bind(this, "JobsTab")}
+                            onClick={this.tabClickHandler.bind(this, "DeviceAlertsTab")}
                         >
                             {this.props.t("devices.details.alerts.title")}
                         </NavLink>
                         <NavLink
-                            to={"/devices/device-details/telemetry"}
+                            to={{
+                                pathname: "/devices/device-details/telemetry",
+                                state: { deviceId: this.state.deviceId }
+                            }}
                             className="tab"
                             activeClassName="active"
                             onClick={this.tabClickHandler.bind(
                                 this,
-                                "AlertsTab"
+                                "TelemetryTab"
                             )}
                         >
                             {this.props.t("devices.details.telemetry.title")}
@@ -143,11 +150,19 @@ export class DeviceDetail extends Component {
                         <Switch>
                             <Route
                                 exact
-                                path={"/devices/device-details/tags"}
+                                path={"/devices/device-details/alerts"}
                                 render={() => (
-                                    <Notifications
-                                        {...this.props}
-                                        {...this.props.alertProps}
+                                    <DeviceAlertsContainer
+                                        deviceId={this.state.deviceId}
+                                    />
+                                )}
+                            />
+                            <Route
+                                exact
+                                path={"/devices/device-details/telemetry"}
+                                render={() => (
+                                    <TelemetryContainer
+                                        deviceId={this.state.deviceId}
                                     />
                                 )}
                             />

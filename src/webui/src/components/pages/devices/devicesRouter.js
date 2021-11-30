@@ -3,7 +3,6 @@
 import React from "react";
 import { Route, Redirect, Switch } from "react-router-dom";
 import { DeviceDetailContainer } from "./deviceDetail/deviceDetail.container";
-import { DeviceDeploymentsContainer } from "./deviceDetail/tabs";
 import { DevicesContainer } from "./devices.container";
 import { DeviceTelemetryContainer } from "./deviceTelemetry/deviceTelemetry.container";
 
@@ -30,8 +29,8 @@ export const DevicesRouter = () => (
         />
         <Route
             exact
-            path={"/devices/device-details/device-deployments"}
-            render={(routeProps) => <DeviceDeploymentsContainer {...routeProps} />}
+            path={"/devices/device-details/:path(device-deployments|alerts|telemetry)"}
+            render={(routeProps) => <DeviceDetailContainer {...routeProps} />}
         />
         <Route
             exact
