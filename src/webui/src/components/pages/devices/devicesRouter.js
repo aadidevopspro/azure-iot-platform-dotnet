@@ -30,7 +30,7 @@ export const DevicesRouter = () => (
         <Route
             exact
             path={
-                "/devices/device-details/:path(device-deployments|device-uploads|alerts|telemetry)"
+                "/devices/device-details/:path(device-deployments|device-uploads|alerts|telemetry|tags)"
             }
             render={(routeProps) => <DeviceDetailContainer {...routeProps} />}
         />

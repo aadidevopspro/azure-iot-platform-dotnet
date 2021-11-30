@@ -18,6 +18,7 @@ import { DeviceDeploymentsContainer } from "./tabs/deviceDeployments/deviceDeplo
 import { DeviceAlertsContainer } from "./tabs/deviceAlerts/deviceAlerts.container";
 import { TelemetryContainer } from "./tabs/telemetry/telemetry.container";
 import { DeviceUploadsContainer } from "./tabs/deviceUploads";
+import { DeviceTagsContainer } from "./tabs/tags/deviceTags.container";
 
 export class DeviceDetail extends Component {
     constructor(props) {
@@ -89,25 +90,9 @@ export class DeviceDetail extends Component {
                             to={"/devices/device-details/tags"}
                             className="tab"
                             activeClassName="active"
-                            onClick={this.tabClickHandler.bind(this, "JobsTab")}
+                            onClick={this.tabClickHandler.bind(this, "TagsTab")}
                         >
                             {this.props.t("devices.details.tags.title")}
-                        </NavLink>
-                        <NavLink
-                            to={"/devices/device-details/tags"}
-                            className="tab"
-                            activeClassName="active"
-                            onClick={this.tabClickHandler.bind(this, "JobsTab")}
-                        >
-                            {this.props.t("devices.details.methods.title")}
-                        </NavLink>
-                        <NavLink
-                            to={"/devices/device-details/tags"}
-                            className="tab"
-                            activeClassName="active"
-                            onClick={this.tabClickHandler.bind(this, "JobsTab")}
-                        >
-                            {this.props.t("devices.details.properties.title")}
                         </NavLink>
                         <NavLink
                             to={"/devices/device-details/tags"}
@@ -182,9 +167,7 @@ export class DeviceDetail extends Component {
                             />
                             <Route
                                 exact
-                                path={
-                                    "/devices/device-details/device-uploads"
-                                }
+                                path={"/devices/device-details/device-uploads"}
                                 render={() => (
                                     <DeviceUploadsContainer
                                         deviceId={this.state.deviceId}
@@ -198,6 +181,15 @@ export class DeviceDetail extends Component {
                                 }
                                 render={() => (
                                     <DeviceDeploymentsContainer
+                                        deviceId={this.state.deviceId}
+                                    />
+                                )}
+                            />
+                            <Route
+                                exact
+                                path={"/devices/device-details/tags"}
+                                render={() => (
+                                    <DeviceTagsContainer
                                         deviceId={this.state.deviceId}
                                     />
                                 )}
