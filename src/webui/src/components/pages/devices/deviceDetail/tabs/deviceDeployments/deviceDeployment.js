@@ -23,7 +23,6 @@ export class DeviceDeployments extends Component {
     }
 
     componentDidMount() {
-        debugger;
         const { ...deviceId } = this.props;
         this.fetchDeviceDeployments(deviceId);
     }
@@ -32,7 +31,6 @@ export class DeviceDeployments extends Component {
         IoTHubManagerService.getDeploymentHistoryForSelectedDevice(
             deviceId
         ).subscribe((deviceDeployments) => {
-            debugger;
             var filteredDeployments = [];
             deviceDeployments.forEach((deployment) => {
                 if (deployment) {
