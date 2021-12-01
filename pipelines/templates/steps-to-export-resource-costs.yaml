@@ -1,0 +1,33 @@
+parameters:
+  subscriptionName: 
+  subscriptionId: 
+  applicationShortCode:
+  environmentCategory:
+
+jobs:
+  - job: exportResourceCosts
+    displayName: Export Resource Costs
+    steps:
+      - checkout: self
+        displayName: Checkout repository
+
+      - task: AzurePowerShell@5
+        displayName: Export Customer Environment Resource Costs 
+        inputs:
+          azureSubscription: ${{parameters.subscriptionName}}
+          ScriptType: FilePath
+          ScriptPath: pipelines/cd/SererityResourceCosts/exportResourcecosts.ps1
+          ScriptArguments: -subscriptionId ${{parameters.subscriptionId}} -applicationShortCode ${{parameters.applicationShortCode}} -environmentCategory ${{parameters.environmentCategory}}
+          azurePowerShellVersion: LatestVersion
+
+      - task: CopyFiles@2
+        displayName: Prepare Azure Functions artifacts
+        inputs:
+            contents: |
+             *.csv
+            targetFolder: fileArtifacts-${{parameters.applicationShortCode}}-${{parameters.environmentCategory}}        
+            cleanTargetFolder: true
+
+      - publish: fileArtifacts-${{parameters.applicationShortCode}}-${{parameters.environmentCategory}}
+        artifact: fileArtifacts-${{parameters.applicationShortCode}}-${{parameters.environmentCategory}}
+        displayName: Publish services artifacts
