@@ -4,11 +4,6 @@ import React, { Component } from "react";
 import { TelemetryService } from "services";
 import { svgs, formatTime } from "utilities";
 import {
-    Balloon,
-    BalloonPosition,
-} from "@microsoft/azure-iot-ux-fluent-controls/lib/components/Balloon/Balloon";
-
-import {
     Btn,
     PropertyGrid as Grid,
     PropertyGridBody as GridBody,
@@ -67,119 +62,57 @@ export class DeviceUploads extends Component {
 
         return (
             <div className="device-details-container">
-                <div className="device-details-container">
-                    <div>
-                        <div>
-                            <div>
-                                {deviceUploads.length === 0 &&
-                                    t(
-                                        "devices.flyouts.details.deviceUploads.noneExist"
+                {deviceUploads.length === 0 &&
+                    t("devices.flyouts.details.deviceUploads.noneExist")}
+                {deviceUploads.length > 0 && (
+                    <Grid className="device-details-deviceuploads">
+                        <GridHeader>
+                            <Row>
+                                <Cell className="col-3">
+                                    {t(
+                                        "devices.flyouts.details.deviceUploads.fileName"
                                     )}
-                                {deviceUploads.length > 0 && (
-                                    <Grid className="device-details-deviceuploads">
-                                        <GridHeader>
-                                            <Row>
-                                                <Cell className="col-7">
-                                                    {t(
-                                                        "devices.flyouts.details.deviceUploads.fileName"
-                                                    )}
-                                                </Cell>
-                                                <Cell className="col-3">
-                                                    {t(
-                                                        "devices.flyouts.details.deviceUploads.action"
-                                                    )}
-                                                </Cell>
-                                            </Row>
-                                        </GridHeader>
-                                        <GridBody>
-                                            {deviceUploads.map(
-                                                (upload, idx) => (
-                                                    <Row key={idx}>
-                                                        <Cell className="col-3">
-                                                            <Balloon
-                                                                position={
-                                                                    BalloonPosition.Left
-                                                                }
-                                                                tooltip={
-                                                                    <div>
-                                                                        <Grid className="device-details-deviceuploads-popup">
-                                                                            <GridHeader>
-                                                                                <Row>
-                                                                                    <Cell className="col-3">
-                                                                                        {t(
-                                                                                            "devices.flyouts.details.deviceUploads.property"
-                                                                                        )}
-                                                                                    </Cell>
-                                                                                    <Cell className="col-6">
-                                                                                        {t(
-                                                                                            "devices.flyouts.details.deviceUploads.value"
-                                                                                        )}
-                                                                                    </Cell>
-                                                                                </Row>
-                                                                            </GridHeader>
-                                                                            <GridBody>
-                                                                                <Row>
-                                                                                    <Cell className="col-3">
-                                                                                        Size
-                                                                                    </Cell>
-                                                                                    <Cell className="col-6">
-                                                                                        {upload.Size.toString()}
-                                                                                    </Cell>
-                                                                                </Row>
-                                                                                <Row>
-                                                                                    <Cell className="col-3">
-                                                                                        Uploaded
-                                                                                        On
-                                                                                    </Cell>
-                                                                                    <Cell className="col-6">
-                                                                                        {formatTime(
-                                                                                            upload.UploadedOn
-                                                                                        )}
-                                                                                    </Cell>
-                                                                                </Row>
-                                                                                <Row>
-                                                                                    <Cell className="col-3">
-                                                                                        Uploaded
-                                                                                        By
-                                                                                    </Cell>
-                                                                                    <Cell className="col-6">
-                                                                                        {
-                                                                                            upload.UploadedBy
-                                                                                        }
-                                                                                    </Cell>
-                                                                                </Row>
-                                                                            </GridBody>
-                                                                        </Grid>
-                                                                    </div>
-                                                                }
-                                                            >
-                                                                {upload.Name}
-                                                            </Balloon>
-                                                        </Cell>
-                                                        <Cell className="col-3">
-                                                            <Btn
-                                                                svg={
-                                                                    svgs.upload
-                                                                }
-                                                                className="download-deviceupload"
-                                                                onClick={() =>
-                                                                    this.downloadFile(
-                                                                        upload.BlobName,
-                                                                        upload.Name
-                                                                    )
-                                                                }
-                                                            ></Btn>
-                                                        </Cell>
-                                                    </Row>
+                                </Cell>
+                                <Cell className="col-2">Size</Cell>
+                                <Cell className="col-3">Uploaded On</Cell>
+                                <Cell className="col-3">Uploaded By</Cell>
+                                <Cell className="col-1">
+                                    {t(
+                                        "devices.flyouts.details.deviceUploads.action"
+                                    )}
+                                </Cell>
+                            </Row>
+                        </GridHeader>
+                        <GridBody>
+                            {deviceUploads.map((upload, idx) => (
+                                <Row key={idx}>
+                                    <Cell className="col-3">{upload.Name}</Cell>
+                                    <Cell className="col-2">
+                                        {upload.Size.toString()}
+                                    </Cell>
+                                    <Cell className="col-3">
+                                        {formatTime(upload.UploadedOn)}
+                                    </Cell>
+                                    <Cell className="col-3">
+                                        {upload.UploadedBy}
+                                    </Cell>
+                                    <Cell className="col-1">
+                                        <Btn
+                                            svg={svgs.upload}
+                                            className="download-deviceupload"
+                                            onClick={() =>
+                                                this.downloadFile(
+                                                    upload.BlobName,
+                                                    upload.Name
                                                 )
-                                            )}
-                                        </GridBody>
-                                    </Grid>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                                            }
+                                        ></Btn>
+                                    </Cell>
+                                </Row>
+                            ))}
+                        </GridBody>
+                    </Grid>
+                )}
             </div>
         );
     }
