@@ -23,7 +23,7 @@ stages:
   #   variables:
   #   - group: crslDev
   #   jobs:
-  #     - template: ../templates/steps-to-export-resource-costs.yaml
+  #     - template: ../../templates/steps-to-export-resource-costs.yaml
   #       parameters:
   #         subscriptionId: $(subscriptionId-crslDev)
   #         subscriptionName: $(subscriptionName-crslDev)
@@ -35,7 +35,7 @@ stages:
     variables:
     - group: crslQa
     jobs:
-      - template: ../templates/steps-to-export-resource-costs.yaml
+      - template: ../../templates/steps-to-export-resource-costs.yaml
         parameters:
           subscriptionId: $(subscriptionId-crslQa)
           subscriptionName: $(subscriptionName-crslQa)
@@ -50,7 +50,7 @@ stages:
     dependsOn:
       - crslQa
     jobs:
-      - template: ../templates/steps-to-export-resource-costs.yaml
+      - template: ../../templates/steps-to-export-resource-costs.yaml
         parameters:
           subscriptionId: $(subscriptionId-crslWkbnch)
           subscriptionName: $(subscriptionName-crslWkbnch)
@@ -64,7 +64,7 @@ stages:
     dependsOn:
       - crslWkbnch
     jobs:
-      - template: ../templates/steps-to-export-resource-costs.yaml
+      - template: ../../templates/steps-to-export-resource-costs.yaml
         parameters:
           subscriptionId: $(subscriptionId-chimDev)
           subscriptionName: $(subscriptionName-chimDev)
@@ -81,7 +81,7 @@ stages:
     dependsOn:
       - chimDev
     jobs:
-      - template: ../templates/steps-to-export-resource-costs.yaml
+      - template: ../../templates/steps-to-export-resource-costs.yaml
         parameters:
           subscriptionId: $(subscriptionId-chimQa)
           subscriptionName: $(subscriptionName-chimQa)
@@ -98,7 +98,7 @@ stages:
     dependsOn:
       - chimQa
     jobs:
-      - template: ../templates/steps-to-export-resource-costs.yaml
+      - template: ../../templates/steps-to-export-resource-costs.yaml
         parameters:
           subscriptionId: $(subscriptionId-chimProd)
           subscriptionName: $(subscriptionName-chimProd)
@@ -115,7 +115,7 @@ stages:
     dependsOn:
       - crslWkbnch
     jobs:
-      - template: ../templates/steps-to-export-resource-costs.yaml
+      - template: ../../templates/steps-to-export-resource-costs.yaml
         parameters:
           subscriptionId: $(subscriptionId-psdDev)
           subscriptionName: $(subscriptionName-psdDev)
@@ -132,7 +132,7 @@ stages:
     dependsOn:
       - psdDev
     jobs:
-      - template: ../templates/steps-to-export-resource-costs.yaml
+      - template: ../../templates/steps-to-export-resource-costs.yaml
         parameters:
           subscriptionId: $(subscriptionId-psdQa)
           subscriptionName: $(subscriptionName-psdQa)
@@ -149,7 +149,7 @@ stages:
     dependsOn:
       - psdQa
     jobs:
-      - template: ../templates/steps-to-export-resource-costs.yaml
+      - template: ../../templates/steps-to-export-resource-costs.yaml
         parameters:
           subscriptionId: $(subscriptionId-psdProd)
           subscriptionName: $(subscriptionName-psdProd)
@@ -165,7 +165,7 @@ stages:
     dependsOn:
       - crslWkbnch
     jobs:
-      - template: ../templates/steps-to-export-resource-costs.yaml
+      - template: ../../templates/steps-to-export-resource-costs.yaml
         parameters:
           subscriptionId: $(subscriptionId-emdDev)
           subscriptionName: $(subscriptionName-emdDev)
@@ -182,7 +182,7 @@ stages:
     dependsOn:
       - emdDev
     jobs:
-      - template: ../templates/steps-to-export-resource-costs.yaml
+      - template: ../../templates/steps-to-export-resource-costs.yaml
         parameters:
           subscriptionId: $(subscriptionId-emdQa)
           subscriptionName: $(subscriptionName-emdQa)
@@ -199,7 +199,7 @@ stages:
     dependsOn:
       - emdDev
     jobs:
-      - template: ../templates/steps-to-export-resource-costs.yaml
+      - template: ../../templates/steps-to-export-resource-costs.yaml
         parameters:
           subscriptionId: $(subscriptionId-emdCt)
           subscriptionName: $(subscriptionName-emdCt)
@@ -216,7 +216,7 @@ stages:
     dependsOn:
       - crslWkbnch
     jobs:
-      - template: ../templates/steps-to-export-resource-costs.yaml
+      - template: ../../templates/steps-to-export-resource-costs.yaml
         parameters:
           subscriptionId: $(subscriptionId-kciDev)
           subscriptionName: $(subscriptionName-kciDev)
@@ -233,7 +233,7 @@ stages:
     dependsOn:
       - crslWkbnch
     jobs:
-      - template: ../templates/steps-to-export-resource-costs.yaml
+      - template: ../../templates/steps-to-export-resource-costs.yaml
         parameters:
           subscriptionId: $(subscriptionId-psdfireDev)
           subscriptionName: $(subscriptionName-psdfireDev)
