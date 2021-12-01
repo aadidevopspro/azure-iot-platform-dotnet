@@ -4,7 +4,6 @@ import { connect } from "react-redux";
 import { withTranslation } from "react-i18next";
 import {
     redux as appRedux,
-    epics as appEpics,
     getTheme,
     getTimeSeriesExplorerUrl,
     getTimeInterval,
@@ -33,8 +32,6 @@ const mapStateToProps = (state, props) => ({
             ),
         updateTimeInterval: (timeInterval) =>
             dispatch(appRedux.actions.updateTimeInterval(timeInterval)),
-        logEvent: (diagnosticsModel) =>
-            dispatch(appEpics.actions.logEvent(diagnosticsModel)),
     });
 
 export const TelemetryContainer = withTranslation()(

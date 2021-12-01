@@ -2,11 +2,6 @@
 
 import React, { Component } from "react";
 import { Trans } from "react-i18next";
-import {
-    Balloon,
-    BalloonPosition,
-} from "@microsoft/azure-iot-ux-fluent-controls/lib/components/Balloon/Balloon";
-
 import { copyToClipboard, svgs } from "utilities";
 import {
     Btn,
@@ -44,42 +39,11 @@ const Section = Flyout.Section,
     };
 
 export class DeviceTags extends Component {
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            showRawMessage: false,
-            expandedValue: false,
-        };
-        this.baseState = this.state;
-    }
-
     copyDevicePropertiesToClipboard = () => {
         if (this.props.device) {
             copyToClipboard(JSON.stringify(this.props.device.properties || {}));
         }
     };
-
-    toggleRawDiagnosticsMessage = () => {
-        this.setState({ showRawMessage: !this.state.showRawMessage });
-    };
-
-    updateTimeInterval = (timeInterval) => {
-        this.props.updateTimeInterval(timeInterval);
-        this.resetTelemetry$.next(this.props.device.id);
-    };
-
-    expandFlyout() {
-        if (this.state.expandedValue) {
-            this.setState({
-                expandedValue: false,
-            });
-        } else {
-            this.setState({
-                expandedValue: true,
-            });
-        }
-    }
 
     render() {
         const { t, device } = this.props,
@@ -323,27 +287,19 @@ export class DeviceTags extends Component {
                                                                         value,
                                                                     ]) => {
                                                                         const displayValue =
-                                                                                !desiredPropertyValue ||
-                                                                                value ===
-                                                                                    desiredPropertyValue
-                                                                                    ? value.toString()
-                                                                                    : t(
-                                                                                          "devices.flyouts.details.properties.syncing",
-                                                                                          {
-                                                                                              reportedPropertyValue:
-                                                                                                  value.toString(),
-                                                                                              desiredPropertyValue:
-                                                                                                  desiredPropertyValue.toString(),
-                                                                                          }
-                                                                                      ),
-                                                                            truncatedDisplayName =
-                                                                                propertyDisplayName.length <=
-                                                                                20
-                                                                                    ? propertyDisplayName
-                                                                                    : `...${propertyDisplayName.substring(
-                                                                                          propertyDisplayName.length -
-                                                                                              17
-                                                                                      )}`;
+                                                                            !desiredPropertyValue ||
+                                                                            value ===
+                                                                                desiredPropertyValue
+                                                                                ? value.toString()
+                                                                                : t(
+                                                                                      "devices.flyouts.details.properties.syncing",
+                                                                                      {
+                                                                                          reportedPropertyValue:
+                                                                                              value.toString(),
+                                                                                          desiredPropertyValue:
+                                                                                              desiredPropertyValue.toString(),
+                                                                                      }
+                                                                                  );
                                                                         rows.push(
                                                                             <Row
                                                                                 key={
@@ -351,22 +307,9 @@ export class DeviceTags extends Component {
                                                                                 }
                                                                             >
                                                                                 <Cell className="col-3">
-                                                                                    <Balloon
-                                                                                        position={
-                                                                                            BalloonPosition.Left
-                                                                                        }
-                                                                                        tooltip={
-                                                                                            <Trans>
-                                                                                                {
-                                                                                                    propertyDisplayName
-                                                                                                }
-                                                                                            </Trans>
-                                                                                        }
-                                                                                    >
-                                                                                        {
-                                                                                            truncatedDisplayName
-                                                                                        }
-                                                                                    </Balloon>
+                                                                                    {
+                                                                                        propertyDisplayName
+                                                                                    }
                                                                                 </Cell>
                                                                                 <Cell className="col-15">
                                                                                     {
