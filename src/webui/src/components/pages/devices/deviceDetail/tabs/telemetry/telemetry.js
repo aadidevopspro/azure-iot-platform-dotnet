@@ -5,14 +5,31 @@ import { merge, of, Subject } from "rxjs";
 import { delay, map, mergeMap, switchMap, tap } from "rxjs/operators";
 import Config from "app.config";
 import { TelemetryService } from "services";
-import { int } from "utilities";
+import { int, DEFAULT_TIME_FORMAT } from "utilities";
 import { TimeSeriesInsightsLinkContainer } from "components/shared";
 import { TimeIntervalDropdownContainer as TimeIntervalDropdown } from "components/shell/timeIntervalDropdown";
 import {
     TelemetryChartContainer as TelemetryChart,
     chartColorObjects,
 } from "components/pages/dashboard/panels/telemetry";
+import moment from "moment";
+import {
+    Btn,
+    ComponentArray,
+    PropertyGrid as Grid,
+    PropertyGridBody as GridBody,
+    PropertyGridHeader as GridHeader,
+    PropertyRow as Row,
+    PropertyCell as Cell,
+    SectionDesc,
+} from "components/shared";
 import { transformTelemetryResponse } from "components/pages/dashboard/panels";
+import { Pivot, PivotItem } from "@fluentui/react";
+import Flyout from "components/shared/flyout";
+const classnames = require("classnames/bind");
+const css = classnames.bind(require("../../deviceDetail.module.scss"));
+
+const Section = Flyout.Section;
 
 export class Telemetry extends Component {
     constructor(props) {
@@ -23,6 +40,7 @@ export class Telemetry extends Component {
             telemetryIsPending: true,
             telemetryError: null,
             telemetryQueryExceededLimit: false,
+            showRawMessage: false,
         };
         this.baseState = this.state;
         this.resetTelemetry$ = new Subject();
@@ -30,6 +48,7 @@ export class Telemetry extends Component {
     }
 
     componentDidMount() {
+        debugger;
         const {
                 device = {},
                 device: { telemetry: { interval = "0" } = {} } = {},
@@ -146,9 +165,22 @@ export class Telemetry extends Component {
         }
     }
 
+    handleLinkClick = (item) => {
+        if (
+            item &&
+            item.props &&
+            item.props.itemKey &&
+            item.props.itemKey === "Telemetry"
+        ) {
+            console.log(item.props.itemKey);
+            this.resetTelemetry$.next(this.props.device.id);
+        }
+    };
+
     render() {
         const { t, device, theme, timeSeriesExplorerUrl } = this.props,
-            { telemetry } = this.state,
+            { telemetry, lastMessage } = this.state,
+            lastMessageTime = (lastMessage || {}).time,
             // Add parameters to Time Series Insights Url
 
             timeSeriesParamUrl = timeSeriesExplorerUrl
@@ -162,25 +194,149 @@ export class Telemetry extends Component {
 
         return (
             <Fragment>
-                <TimeIntervalDropdown
-                    onChange={this.updateTimeInterval}
-                    value={this.props.timeInterval}
-                    t={t}
-                    className="device-details-time-interval-dropdown"
-                />
-                {timeSeriesExplorerUrl && (
-                    <TimeSeriesInsightsLinkContainer
-                        href={timeSeriesParamUrl}
-                    />
-                )}
-                <TelemetryChart
-                    className="telemetry-chart"
-                    t={t}
-                    limitExceeded={this.state.telemetryQueryExceededLimit}
-                    telemetry={telemetry}
-                    theme={theme}
-                    colors={chartColorObjects}
-                />
+                <Pivot
+                    aria-label="Device Tags"
+                    linkSize="large"
+                    onLinkClick={this.handleLinkClick}
+                >
+                    <PivotItem
+                        headerText="Telemetry"
+                        itemKey="Telemetry"
+                        key="Telemetry"
+                    >
+                        <TimeIntervalDropdown
+                            onChange={this.updateTimeInterval}
+                            value={this.props.timeInterval}
+                            t={t}
+                            className="device-details-time-interval-dropdown"
+                        />
+                        {timeSeriesExplorerUrl && (
+                            <TimeSeriesInsightsLinkContainer
+                                href={timeSeriesParamUrl}
+                            />
+                        )}
+                        <TelemetryChart
+                            className="telemetry-chart"
+                            t={t}
+                            limitExceeded={
+                                this.state.telemetryQueryExceededLimit
+                            }
+                            telemetry={telemetry}
+                            theme={theme}
+                            colors={chartColorObjects}
+                        />
+                    </PivotItem>
+                    <PivotItem
+                        headerText="Diagnostics"
+                        itemKey="Diagnostics"
+                        key="Diagnostics"
+                    >
+                        <Section.Container>
+                            <Section.Header>
+                                {t("devices.flyouts.details.diagnostics.title")}
+                            </Section.Header>
+                            <Section.Content>
+                                <SectionDesc>
+                                    {t(
+                                        "devices.flyouts.details.diagnostics.description"
+                                    )}
+                                </SectionDesc>
+
+                                <Grid
+                                    className={css(
+                                        "device-details-diagnostics"
+                                    )}
+                                >
+                                    <GridHeader>
+                                        <Row>
+                                            <Cell className="col-3">
+                                                {t(
+                                                    "devices.flyouts.details.diagnostics.keyHeader"
+                                                )}
+                                            </Cell>
+                                            <Cell className="col-15">
+                                                {t(
+                                                    "devices.flyouts.details.diagnostics.valueHeader"
+                                                )}
+                                            </Cell>
+                                        </Row>
+                                    </GridHeader>
+                                    <GridBody>
+                                        <Row>
+                                            <Cell className="col-3">
+                                                {t(
+                                                    "devices.flyouts.details.diagnostics.status"
+                                                )}
+                                            </Cell>
+                                            <Cell className="col-15">
+                                                {device.connected
+                                                    ? t(
+                                                          "devices.flyouts.details.connected"
+                                                      )
+                                                    : t(
+                                                          "devices.flyouts.details.notConnected"
+                                                      )}
+                                            </Cell>
+                                        </Row>
+                                        {!device.connected && (
+                                            <ComponentArray>
+                                                <Row>
+                                                    <Cell className="col-3">
+                                                        {t(
+                                                            "devices.flyouts.details.diagnostics.lastMessage"
+                                                        )}
+                                                    </Cell>
+                                                    <Cell className="col-15">
+                                                        {lastMessageTime
+                                                            ? moment(
+                                                                  lastMessageTime
+                                                              ).format(
+                                                                  DEFAULT_TIME_FORMAT
+                                                              )
+                                                            : "---"}
+                                                    </Cell>
+                                                </Row>
+                                                <Row>
+                                                    <Cell className="col-3">
+                                                        {t(
+                                                            "devices.flyouts.details.diagnostics.message"
+                                                        )}
+                                                    </Cell>
+                                                    <Cell className="col-15">
+                                                        <Btn
+                                                            className={css(
+                                                                "raw-message-button"
+                                                            )}
+                                                            onClick={
+                                                                this
+                                                                    .toggleRawDiagnosticsMessage
+                                                            }
+                                                        >
+                                                            {t(
+                                                                "devices.flyouts.details.diagnostics.showMessage"
+                                                            )}
+                                                        </Btn>
+                                                    </Cell>
+                                                </Row>
+                                            </ComponentArray>
+                                        )}
+                                        {this.state.showRawMessage && (
+                                            <Row>
+                                                <pre>
+                                                    {JSON.stringify(
+                                                        lastMessage,
+                                                        null,
+                                                        2
+                                                    )}
+                                                </pre>
+                                            </Row>
+                                        )}
+                                    </GridBody>
+                                </Grid>
+                            </Section.Content>
+                        </Section.Container>
+                    </PivotItem>
+                </Pivot>
             </Fragment>
         );
     }

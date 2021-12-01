@@ -97,10 +97,7 @@ export class DeviceTags extends Component {
                 )}
                 {!!device && (
                     <div className="device-details-container">
-                        <Pivot
-                            aria-label="Remove Pivot Example"
-                            linkSize="large"
-                        >
+                        <Pivot aria-label="Device Tags" linkSize="large">
                             <PivotItem
                                 headerText="Tags"
                                 itemKey="Tags"

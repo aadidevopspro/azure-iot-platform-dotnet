@@ -99,22 +99,6 @@ export class DeviceDetail extends Component {
                             {this.props.t("devices.details.tags.title")}
                         </NavLink>
                         <NavLink
-                            to={"/devices/device-details/tags"}
-                            className={css("tab")}
-                            activeClassName={css("active")}
-                            onClick={this.tabClickHandler.bind(this, "JobsTab")}
-                        >
-                            {this.props.t("devices.details.diagnostics.title")}
-                        </NavLink>
-                        <NavLink
-                            to={"/devices/device-details/tags"}
-                            className={css("tab")}
-                            activeClassName={css("active")}
-                            onClick={this.tabClickHandler.bind(this, "JobsTab")}
-                        >
-                            {this.props.t("devices.details.modules.title")}
-                        </NavLink>
-                        <NavLink
                             to={{
                                 pathname:
                                     "/devices/device-details/device-uploads",
