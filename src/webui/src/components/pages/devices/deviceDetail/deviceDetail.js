@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft. All rights reserved.
 
 import React, { Component } from "react";
-import { svgs } from "utilities";
+import { svgs, renderUndefined } from "utilities";
 import {
     Btn,
     ComponentArray,
@@ -9,6 +9,9 @@ import {
     ContextMenuAlign,
     PageContent,
     PageTitle,
+    StatSection,
+    StatGroup,
+    StatProperty,
 } from "components/shared";
 import { toDiagnosticsModel } from "services/models";
 import { NavLink } from "react-router-dom";
@@ -26,11 +29,13 @@ export class DeviceDetail extends Component {
         super(props);
         this.state = {
             deviceId: props.location.state.deviceId,
+            device: props.device,
         };
     }
 
     componentDidMount() {
         console.log(this.state.deviceId);
+        console.log(this.props.device);
     }
 
     tabClickHandler = (tabName) => {
@@ -53,7 +58,6 @@ export class DeviceDetail extends Component {
                         </Btn>
                     </ContextMenuAlign>
                 </ContextMenu>
-
                 <PageContent
                     className={`${css("maintenance-container")}  
                     ${css("summary-container")}`}
@@ -61,6 +65,38 @@ export class DeviceDetail extends Component {
                     <PageTitle
                         titleValue={this.props.t("devices.details.title")}
                     />
+                    <StatSection className={css("summary-stat-container")}>
+                        <StatGroup>
+                            <StatProperty svg={svgs.devices["generic"]} />
+                        </StatGroup>
+                        <StatGroup>
+                            <StatProperty
+                                value={renderUndefined(this.props.device.id)}
+                            />
+                        </StatGroup>
+                        <StatGroup>
+                            <StatProperty
+                                value={
+                                    this.props.device.isSimulated
+                                        ? t("devices.flyouts.details.simulated")
+                                        : t(
+                                              "devices.flyouts.details.notSimulated"
+                                          )
+                                }
+                            />
+                        </StatGroup>
+                        <StatGroup>
+                            <StatProperty
+                                value={
+                                    this.props.device.connected
+                                        ? t("devices.flyouts.details.connected")
+                                        : t(
+                                              "devices.flyouts.details.notConnected"
+                                          )
+                                }
+                            />
+                        </StatGroup>
+                    </StatSection>
                     <div className={css("tab-container")}>
                         <NavLink
                             to={{
@@ -91,7 +127,10 @@ export class DeviceDetail extends Component {
                             {this.props.t("devices.details.telemetry.title")}
                         </NavLink>
                         <NavLink
-                            to={"/devices/device-details/tags"}
+                            to={{
+                                pathname: "/devices/device-details/tags",
+                                state: { deviceId: this.state.deviceId },
+                            }}
                             className={css("tab")}
                             activeClassName={css("active")}
                             onClick={this.tabClickHandler.bind(this, "TagsTab")}

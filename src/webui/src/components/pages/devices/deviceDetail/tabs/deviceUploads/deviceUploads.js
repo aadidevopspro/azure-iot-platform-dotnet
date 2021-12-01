@@ -2,7 +2,7 @@
 
 import React, { Component } from "react";
 import { TelemetryService } from "services";
-import { svgs, formatTime } from "utilities";
+import { formatTime } from "utilities";
 import {
     Btn,
     PropertyGrid as Grid,
@@ -98,8 +98,7 @@ export class DeviceUploads extends Component {
                                     </Cell>
                                     <Cell className="col-1">
                                         <Btn
-                                            svg={svgs.upload}
-                                            className="download-deviceupload"
+                                            icon="download"
                                             onClick={() =>
                                                 this.downloadFile(
                                                     upload.BlobName,

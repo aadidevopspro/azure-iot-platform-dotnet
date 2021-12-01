@@ -28,7 +28,7 @@ import {
 
 // Pass the device details
 const mapStateToProps = (state, props) => ({
-        device: getDeviceById(state, props.deviceId),
+        device: getDeviceById(state, props.location.state.deviceId),
         isRulesPending: getRulesPendingStatus(state),
         rules: getRulesEntities(state),
         rulesLastUpdated: getRulesLastUpdated(state),

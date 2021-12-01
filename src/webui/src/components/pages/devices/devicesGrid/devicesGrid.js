@@ -273,7 +273,7 @@ export class DevicesGrid extends Component {
     };
 
     goToDeviceDetail = (deviceId) => {
-        this.props.history.push("/devices/device-detail", {
+        this.props.history.push("/devices/device-details/telemetry", {
             deviceId: deviceId,
         });
     };
