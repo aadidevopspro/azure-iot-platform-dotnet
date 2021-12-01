@@ -23,7 +23,7 @@ export class DeviceDeployments extends Component {
     }
 
     componentDidMount() {
-        const { ...deviceId } = this.props;
+        const { deviceId } = this.props;
         this.fetchDeviceDeployments(deviceId);
     }
 

@@ -28,7 +28,7 @@ export class DeviceUploads extends Component {
     }
 
     componentDidMount() {
-        const { ...deviceId } = this.props;
+        const { deviceId } = this.props;
         this.fetchDeviceUploads(deviceId);
     }
 

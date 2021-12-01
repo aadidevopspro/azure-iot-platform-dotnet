@@ -30,7 +30,6 @@ export class Telemetry extends Component {
     }
 
     componentDidMount() {
-        debugger;
         const {
                 device = {},
                 device: { telemetry: { interval = "0" } = {} } = {},
