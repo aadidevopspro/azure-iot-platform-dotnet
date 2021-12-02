@@ -173,55 +173,59 @@ export class DeviceDetail extends Component {
                         </NavLink>
                     </div>
                     <div className="grid-container">
-                        <Switch>
-                            <Route
-                                exact
-                                path={"/devices/device-details/alerts"}
-                                render={() => (
-                                    <DeviceAlertsContainer
-                                        deviceId={this.state.deviceId}
-                                    />
-                                )}
-                            />
-                            <Route
-                                exact
-                                path={"/devices/device-details/telemetry"}
-                                render={() => (
-                                    <TelemetryContainer
-                                        deviceId={this.state.deviceId}
-                                    />
-                                )}
-                            />
-                            <Route
-                                exact
-                                path={"/devices/device-details/device-uploads"}
-                                render={() => (
-                                    <DeviceUploadsContainer
-                                        deviceId={this.state.deviceId}
-                                    />
-                                )}
-                            />
-                            <Route
-                                exact
-                                path={
-                                    "/devices/device-details/device-deployments"
-                                }
-                                render={() => (
-                                    <DeviceDeploymentsContainer
-                                        deviceId={this.state.deviceId}
-                                    />
-                                )}
-                            />
-                            <Route
-                                exact
-                                path={"/devices/device-details/tags"}
-                                render={() => (
-                                    <DeviceTagsContainer
-                                        deviceId={this.state.deviceId}
-                                    />
-                                )}
-                            />
-                        </Switch>
+                        <div className={css("padding-20")}>
+                            <Switch>
+                                <Route
+                                    exact
+                                    path={"/devices/device-details/alerts"}
+                                    render={() => (
+                                        <DeviceAlertsContainer
+                                            deviceId={this.state.deviceId}
+                                        />
+                                    )}
+                                />
+                                <Route
+                                    exact
+                                    path={"/devices/device-details/telemetry"}
+                                    render={() => (
+                                        <TelemetryContainer
+                                            deviceId={this.state.deviceId}
+                                        />
+                                    )}
+                                />
+                                <Route
+                                    exact
+                                    path={
+                                        "/devices/device-details/device-uploads"
+                                    }
+                                    render={() => (
+                                        <DeviceUploadsContainer
+                                            deviceId={this.state.deviceId}
+                                        />
+                                    )}
+                                />
+                                <Route
+                                    exact
+                                    path={
+                                        "/devices/device-details/device-deployments"
+                                    }
+                                    render={() => (
+                                        <DeviceDeploymentsContainer
+                                            deviceId={this.state.deviceId}
+                                        />
+                                    )}
+                                />
+                                <Route
+                                    exact
+                                    path={"/devices/device-details/tags"}
+                                    render={() => (
+                                        <DeviceTagsContainer
+                                            deviceId={this.state.deviceId}
+                                        />
+                                    )}
+                                />
+                            </Switch>
+                        </div>
                     </div>
                 </PageContent>
             </ComponentArray>

@@ -48,7 +48,6 @@ export class Telemetry extends Component {
     }
 
     componentDidMount() {
-        debugger;
         const {
                 device = {},
                 device: { telemetry: { interval = "0" } = {} } = {},
@@ -204,137 +203,137 @@ export class Telemetry extends Component {
                         itemKey="Telemetry"
                         key="Telemetry"
                     >
-                        <TimeIntervalDropdown
-                            onChange={this.updateTimeInterval}
-                            value={this.props.timeInterval}
-                            t={t}
-                            className="device-details-time-interval-dropdown"
-                        />
-                        {timeSeriesExplorerUrl && (
-                            <TimeSeriesInsightsLinkContainer
-                                href={timeSeriesParamUrl}
+                        <div className={css("padding-20")}>
+                            <TimeIntervalDropdown
+                                onChange={this.updateTimeInterval}
+                                value={this.props.timeInterval}
+                                t={t}
+                                className="device-details-time-interval-dropdown"
                             />
-                        )}
-                        <TelemetryChart
-                            className="telemetry-chart"
-                            t={t}
-                            limitExceeded={
-                                this.state.telemetryQueryExceededLimit
-                            }
-                            telemetry={telemetry}
-                            theme={theme}
-                            colors={chartColorObjects}
-                        />
+                            {timeSeriesExplorerUrl && (
+                                <TimeSeriesInsightsLinkContainer
+                                    href={timeSeriesParamUrl}
+                                />
+                            )}
+                            <TelemetryChart
+                                className="telemetry-chart"
+                                t={t}
+                                limitExceeded={
+                                    this.state.telemetryQueryExceededLimit
+                                }
+                                telemetry={telemetry}
+                                theme={theme}
+                                colors={chartColorObjects}
+                            />
+                        </div>
                     </PivotItem>
                     <PivotItem
                         headerText="Diagnostics"
                         itemKey="Diagnostics"
                         key="Diagnostics"
                     >
-                        <Section.Container>
-                            <Section.Header>
-                                {t("devices.flyouts.details.diagnostics.title")}
-                            </Section.Header>
-                            <Section.Content>
-                                <SectionDesc>
-                                    {t(
-                                        "devices.flyouts.details.diagnostics.description"
-                                    )}
-                                </SectionDesc>
-
-                                <Grid
-                                    className={css(
-                                        "device-details-diagnostics"
-                                    )}
-                                >
-                                    <GridHeader>
-                                        <Row>
-                                            <Cell className="col-3">
-                                                {t(
-                                                    "devices.flyouts.details.diagnostics.keyHeader"
-                                                )}
-                                            </Cell>
-                                            <Cell className="col-15">
-                                                {t(
-                                                    "devices.flyouts.details.diagnostics.valueHeader"
-                                                )}
-                                            </Cell>
-                                        </Row>
-                                    </GridHeader>
-                                    <GridBody>
-                                        <Row>
-                                            <Cell className="col-3">
-                                                {t(
-                                                    "devices.flyouts.details.diagnostics.status"
-                                                )}
-                                            </Cell>
-                                            <Cell className="col-15">
-                                                {device.connected
-                                                    ? t(
-                                                          "devices.flyouts.details.connected"
-                                                      )
-                                                    : t(
-                                                          "devices.flyouts.details.notConnected"
-                                                      )}
-                                            </Cell>
-                                        </Row>
-                                        {!device.connected && (
-                                            <ComponentArray>
-                                                <Row>
-                                                    <Cell className="col-3">
-                                                        {t(
-                                                            "devices.flyouts.details.diagnostics.lastMessage"
-                                                        )}
-                                                    </Cell>
-                                                    <Cell className="col-15">
-                                                        {lastMessageTime
-                                                            ? moment(
-                                                                  lastMessageTime
-                                                              ).format(
-                                                                  DEFAULT_TIME_FORMAT
-                                                              )
-                                                            : "---"}
-                                                    </Cell>
-                                                </Row>
-                                                <Row>
-                                                    <Cell className="col-3">
-                                                        {t(
-                                                            "devices.flyouts.details.diagnostics.message"
-                                                        )}
-                                                    </Cell>
-                                                    <Cell className="col-15">
-                                                        <Btn
-                                                            className={css(
-                                                                "raw-message-button"
-                                                            )}
-                                                            onClick={
-                                                                this
-                                                                    .toggleRawDiagnosticsMessage
-                                                            }
-                                                        >
-                                                            {t(
-                                                                "devices.flyouts.details.diagnostics.showMessage"
-                                                            )}
-                                                        </Btn>
-                                                    </Cell>
-                                                </Row>
-                                            </ComponentArray>
+                        <div className={css("padding-20")}>
+                            <Section.Container>
+                                <Section.Content>
+                                    <SectionDesc>
+                                        {t(
+                                            "devices.flyouts.details.diagnostics.description"
                                         )}
-                                        {this.state.showRawMessage && (
+                                    </SectionDesc>
+                                    <Grid
+                                        className={css(
+                                            "device-details-diagnostics"
+                                        )}
+                                    >
+                                        <GridHeader>
                                             <Row>
-                                                <pre>
-                                                    {JSON.stringify(
-                                                        lastMessage,
-                                                        null,
-                                                        2
+                                                <Cell className="col-3">
+                                                    {t(
+                                                        "devices.flyouts.details.diagnostics.keyHeader"
                                                     )}
-                                                </pre>
+                                                </Cell>
+                                                <Cell className="col-15">
+                                                    {t(
+                                                        "devices.flyouts.details.diagnostics.valueHeader"
+                                                    )}
+                                                </Cell>
                                             </Row>
-                                        )}
-                                    </GridBody>
-                                </Grid>
-                            </Section.Content>
-                        </Section.Container>
+                                        </GridHeader>
+                                        <GridBody>
+                                            <Row>
+                                                <Cell className="col-3">
+                                                    {t(
+                                                        "devices.flyouts.details.diagnostics.status"
+                                                    )}
+                                                </Cell>
+                                                <Cell className="col-15">
+                                                    {device.connected
+                                                        ? t(
+                                                              "devices.flyouts.details.connected"
+                                                          )
+                                                        : t(
+                                                              "devices.flyouts.details.notConnected"
+                                                          )}
+                                                </Cell>
+                                            </Row>
+                                            {!device.connected && (
+                                                <ComponentArray>
+                                                    <Row>
+                                                        <Cell className="col-3">
+                                                            {t(
+                                                                "devices.flyouts.details.diagnostics.lastMessage"
+                                                            )}
+                                                        </Cell>
+                                                        <Cell className="col-15">
+                                                            {lastMessageTime
+                                                                ? moment(
+                                                                      lastMessageTime
+                                                                  ).format(
+                                                                      DEFAULT_TIME_FORMAT
+                                                                  )
+                                                                : "---"}
+                                                        </Cell>
+                                                    </Row>
+                                                    <Row>
+                                                        <Cell className="col-3">
+                                                            {t(
+                                                                "devices.flyouts.details.diagnostics.message"
+                                                            )}
+                                                        </Cell>
+                                                        <Cell className="col-3">
+                                                            <Btn
+                                                                className={css(
+                                                                    "raw-message-button"
+                                                                )}
+                                                                onClick={
+                                                                    this
+                                                                        .toggleRawDiagnosticsMessage
+                                                                }
+                                                            >
+                                                                {t(
+                                                                    "devices.flyouts.details.diagnostics.showMessage"
+                                                                )}
+                                                            </Btn>
+                                                        </Cell>
+                                                    </Row>
+                                                </ComponentArray>
+                                            )}
+                                            {this.state.showRawMessage && (
+                                                <Row>
+                                                    <pre>
+                                                        {JSON.stringify(
+                                                            lastMessage,
+                                                            null,
+                                                            2
+                                                        )}
+                                                    </pre>
+                                                </Row>
+                                            )}
+                                        </GridBody>
+                                    </Grid>
+                                </Section.Content>
+                            </Section.Container>
+                        </div>
                     </PivotItem>
                 </Pivot>
             </Fragment>
