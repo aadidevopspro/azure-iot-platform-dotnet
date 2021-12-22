@@ -1,20 +1,4 @@
-trigger:
-  batch: true
-  branches:
-    include:
-      - master
-pr:
-  autoCancel: true
-  branches:
-    include:
-    - master
-schedules:
-  - cron: 0 6 * * *
-    displayName: Daily midnight (CST) build
-    branches:
-      include:
-        - master
-    always: true
+trigger: none
 pool:
   vmImage: ubuntu-latest
 variables:
@@ -22,9 +6,9 @@ variables:
   - name: buildId
     value: build-$(Build.BuildId)
   - name: applicationCode
-    value: acshyd
+    value: acsagic
   - name: applicationShortCode
-    value: acs
+    value: acsagic
   - name: environmentCategory
     value: dev
   - name: subscriptionName
@@ -69,6 +53,8 @@ variables:
     value: webuiFiles
   - name: helmInstallTimeoutInSeconds
     value: 1000
+  - name: grafanaImage
+    value: docker.io/azureiot3m/grafana-custom:latest    
   - name: mmmIotPlatformServicesHelmChartValuesFile
     value: pipelines/ci/mmm-iot-platform-chart-values.yaml
   - name: mmmIotPlatformServicesHelmChartReleaseName
@@ -76,7 +62,7 @@ variables:
   - name: mmmIotPlatformIngressHelmChartReleaseName
     value: ingress-$(buildId)
   - name: serenityDevTenantId
-    value: 23365407-2e58-47d5-b998-eebbff753332
+    value: aca54d8b-91a1-4b2a-a868-7bf44387928b
   - name: testPipelineDomain
     value: iot.cld.3m.com
   - name: testPipelineFqdn
@@ -172,6 +158,7 @@ stages:
               --runtime $(dotnetProductionRuntimeId)
               /p:TargetLatestRuntimePatch=true
             displayName: Restore dependencies
+
           - script: >-
               dotnet publish
               --self-contained false
@@ -181,6 +168,90 @@ stages:
               --runtime $(dotnetProductionRuntimeId)
               /p:TargetLatestRuntimePatch=true
             displayName: Build assemblies
+
+          - task: CopyFiles@2
+            displayName: Prepare services artifacts
+            inputs:
+              contents: |
+                *.sln
+                *.props
+                *.ruleset
+                global.json
+                .nuget/**/*
+                src/services/**/*
+                test/services/**/*
+                src/functions/**/*
+              targetFolder: $(publishedFilesArtifactName)
+              cleanTargetFolder: true
+
+          - publish: $(publishedFilesArtifactName)
+            artifact: $(publishedFilesArtifactName)
+            displayName: Publish services artifacts
+
+      - job: codeQl
+        displayName: Code Scanning using CodeQL
+        dependsOn:
+          - preBuild
+        variables:
+          AppConfigurationConnectionString: $[dependencies.preBuild.outputs['getAppConfigurationConnectionString.appConfigurationConnectionString']]
+        steps:
+          - checkout: self
+            displayName: Checkout repository
+
+          - task: UseDotNet@2
+            inputs:
+              packageType: 'sdk'
+              version: '3.1.x'
+              includePreviewVersions: true
+
+          - script: |
+              wget https://github.com/github/codeql-action/releases/latest/download/codeql-runner-linux
+              chmod +x codeql-runner-linux
+            displayName: 'Get latest CodeQL package. Install on Agent.'
+
+          - script: |
+              ./codeql-runner-linux init \
+              --repository 3mcloud/azure-iot-platform-dotnet \
+              --github-url https://github.com \
+              --github-auth $GITHUB_PAT \
+              --config-file .github/codeql/codeql-config.yml 
+            displayName: 'Initialize CodeQL Executable and create a CodeQL database'
+
+          - script: |
+              ./codeql-runner-linux analyze \
+              --repository YOUR_REPO_NAME \
+              --github-url https://github.com \
+              --github-auth $GITHUB_PAT \
+              --commit $(Build.SourceVersion) \
+              --ref $(Build.SourceBranch)
+            displayName: 'Populate the CodeQL runner databases, analyze them, and upload the results to GitHub.'
+
+
+          - script: >-
+              dotnet restore
+              --force
+              --no-cache
+              --no-dependencies
+              --packages .nuget
+              --runtime $(dotnetProductionRuntimeId)
+              /p:TargetLatestRuntimePatch=true
+            displayName: Restore dependencies
+
+          - script: >-
+              dotnet publish
+              --self-contained false
+              --no-restore
+              --no-dependencies
+              --configuration $(dotnetBuildConfiguration)
+              --runtime $(dotnetProductionRuntimeId)
+              /p:TargetLatestRuntimePatch=true
+            displayName: Build assemblies
+
+
+
+
+
+
           - task: CopyFiles@2
             displayName: Prepare services artifacts
             inputs:
@@ -688,6 +759,19 @@ stages:
               set -Eeuxo pipefail
               sed -i -e 's/replace_this_imageTag/$(Build.BuildId)/g' $(mmmIotPlatformServicesHelmChartValuesFile)
             displayName: Set image tag
+
+          - task: AzureCLI@2
+            displayName: Install Grafana Deployment and Service
+            inputs:
+              azureSubscription: $(subscriptionName)
+              scriptType: bash
+              scriptLocation: inlineScript
+              inlineScript: |-
+                set -Eeuxo pipefail
+                az aks get-credentials -n $(aksName) -g $(resourceGroupName)
+                kubectl create deployment grafana --image=$(grafanaImage) -n $(kubernetesNamespace)
+                kubectl expose deployment grafana -n $(kubernetesNamespace) --port=80 --target-port=3000 --protocol=TCP
+
           - task: HelmDeploy@0
             displayName: Install services Helm chart
             inputs:
@@ -708,6 +792,7 @@ stages:
                 --set secrets.globalsecrets.Global__AzureB2cBaseUri=https://login.microsoftonline.com/crsltestab2c.onmicrosoft.com/oauth2/v2.0/authorize?p=B2C_1_testpolicy&client_id=$(azureAdB2cAppRegistrationClientIdTest)&nonce=defaultNonce&redirect_uri=https%3A%2F%2Flocalhost%3A44367%2Fconnect%2Fcallback&scope=openid&response_type=id_token&prompt=login&response_mode=form_post
                 --timeout $(helmInstallTimeoutInSeconds)
                 --wait
+
           - task: AzureCLI@2
             displayName: Note services Helm chart was installed
             inputs:
@@ -922,7 +1007,7 @@ stages:
       - functionalTest
       - enumerateDependencies
       - deployServices
-    condition: and(succeededOrFailed(), eq(variables['runCleanupStage'], 'true'))
+    condition: and(always(), eq(variables['runCleanupStage'], 'true'))
     jobs:
       - job: getPipelineVariables
         displayName: Get pipeline variables
@@ -989,6 +1074,18 @@ stages:
               command: delete
               arguments: --purge $(mmmIotPlatformServicesHelmChartReleaseName)
 
+          - task: AzureCLI@2
+            displayName: Delete Grafana Deployment and Service
+            inputs:
+              azureSubscription: $(subscriptionName)
+              scriptType: bash
+              scriptLocation: inlineScript
+              inlineScript: |-
+                set -Eeuxo pipefail
+                az aks get-credentials -n $(aksName) -g $(resourceGroupName)
+                kubectl delete deployment grafana -n $(kubernetesNamespace)
+                kubectl delete service grafana -n $(kubernetesNamespace)
+
       - job: uninstallIngressChart
         displayName: Uninstall ingress Helm chart
         dependsOn:
@@ -1020,7 +1117,9 @@ stages:
         displayName: Delete namespace
         dependsOn:
           - getPipelineVariables
-        condition: and(eq(dependencies.getPipelineVariables.outputs['getPipelineVariables.kubernetesNamespaceWasCreated'], 'true'), not(failed()))
+          - uninstallIngressChart
+          - uninstallIngressChart
+        condition: and(eq(dependencies.getPipelineVariables.outputs['getPipelineVariables.kubernetesNamespaceWasCreated'], 'true'), always())
         steps:
           - checkout: none
 
@@ -1061,3 +1160,4 @@ stages:
                   $replyUrls.Remove('$(authenticationCallbackUrl)')
                   Set-AzureADMSApplication -ObjectId $app.Id -Web @{ RedirectUris = $replyUrls }
                 }
+                
