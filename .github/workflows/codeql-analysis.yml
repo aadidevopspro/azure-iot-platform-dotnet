@@ -24,6 +24,8 @@ jobs:
   analyze:
     name: Analyze
     runs-on: ubuntu-latest
+    env:
+      AppConfigurationConnectionString: ${{ secrets.APPCONFIGURATIONCONNECTIONSTRING }}
     permissions:
       actions: read
       contents: read
