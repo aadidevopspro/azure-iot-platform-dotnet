@@ -14,5 +14,5 @@ control your devices.
 See [here](../docs/DEVELOPMENT.md) for detailed instructions on getting setup for development...
 
 # Attribution
-Microsoft graciously provided an IoT Accelerator that we based this code upon:
+Microsoft graciously provided an IoT Accelerator that we based this code upon:-
 https://github.com/Azure/azure-iot-pcs-remote-monitoring-dotnet
