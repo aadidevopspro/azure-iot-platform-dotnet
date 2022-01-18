@@ -15,7 +15,7 @@ envvars.sh
 target/**
 .travis
 
-# Create-React-App build output
+# Create-React-App build output.
 build/**
 
 # Sass ignore css files
@@ -23,7 +23,7 @@ src/**/*.css
 
 # ssh
 
-# Docker output folder
+# Docker output folder.
 out/
 
 ### MacOS
