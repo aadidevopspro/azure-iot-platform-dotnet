@@ -7,6 +7,6 @@
         <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.15.0" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.2" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="5.1.0" />
-        <PackageReference Include="Swashbuckle.AspNetCore.Newtonsoft" Version="5.1.0" />
+        <PackageReference Include="Swashbuckle.AspNetCore.Newtonsoft" Version="6.2.2" />
     </ItemGroup>
 </Project>
