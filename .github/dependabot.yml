@@ -6,7 +6,7 @@
 version: 2
 updates:
   - package-ecosystem: "nuget"
-    directory: "src/../"
+    directory: "/"
     schedule:
       interval: "daily"
     # Raise pull requests for version updates
@@ -17,7 +17,7 @@ updates:
       - "nuget dependencies"
 
   - package-ecosystem: "npm"
-    directory: "/"
+    directory: "src/../"
     schedule:
       interval: "daily"
       # Check for npm updates on Sundays
