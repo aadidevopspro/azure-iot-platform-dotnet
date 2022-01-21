@@ -1,0 +1,28 @@
+# To get started with Dependabot version updates, you'll need to specify which
+# package ecosystems to update and where the package manifests are located.
+# Please see the documentation for all configuration options:
+# https://help.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
+
+version: 2
+updates:
+  - package-ecosystem: "nuget"
+    directory: "src/../"
+    schedule:
+      interval: "daily"
+    # Raise pull requests for version updates
+    # to pip against the `develop` branch
+    target-branch: "dependabot-nuget-dependencies"
+    # Labels on pull requests for version updates only
+    labels:
+      - "nuget dependencies"
+
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "daily"
+      # Check for npm updates on Sundays
+    target-branch: "dependabot-npm-dependencies" 
+    # Labels on pull requests for security and version updates
+    labels:
+      - "npm dependencies"
+      
