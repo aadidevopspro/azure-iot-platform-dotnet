@@ -17,7 +17,7 @@ updates:
       - "nuget dependencies"
 
   - package-ecosystem: "npm"
-    directory: "src/../"
+    directory: "/src/services/webui"
     schedule:
       interval: "daily"
       # Check for npm updates on Sundays
