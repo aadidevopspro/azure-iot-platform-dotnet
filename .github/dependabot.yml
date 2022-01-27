@@ -36,7 +36,7 @@ updates:
     labels:
       - "docker dependencies"
       
-   - package-ecosystem: "docker"
+  - package-ecosystem: "docker"
     directory: "src/webui/"
     schedule:
       interval: "daily"
@@ -44,9 +44,9 @@ updates:
     target-branch: "dependabot-docker-dependencies" 
     # Labels on pull requests for security and version updates
     labels:
-      - "docker dependencies"     
-      
-   - package-ecosystem: "docker"
+     - "docker dependencies"     
+
+  - package-ecosystem: "docker"
     directory: "src/reverse-proxy/"
     schedule:
       interval: "daily"
