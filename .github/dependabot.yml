@@ -27,7 +27,7 @@ updates:
       - "npm dependencies"
       
   - package-ecosystem: "docker"
-    directory: "src/**/"
+    directory: "src/services/"
     schedule:
       interval: "daily"
       # Check for npm updates on Sundays
@@ -36,3 +36,22 @@ updates:
     labels:
       - "docker dependencies"
       
+   - package-ecosystem: "docker"
+    directory: "src/webui/"
+    schedule:
+      interval: "daily"
+      # Check for npm updates on Sundays
+    target-branch: "dependabot-docker-dependencies" 
+    # Labels on pull requests for security and version updates
+    labels:
+      - "docker dependencies"     
+      
+   - package-ecosystem: "docker"
+    directory: "src/reverse-proxy/"
+    schedule:
+      interval: "daily"
+      # Check for npm updates on Sundays
+    target-branch: "dependabot-docker-dependencies" 
+    # Labels on pull requests for security and version updates
+    labels:
+      - "docker dependencies"
