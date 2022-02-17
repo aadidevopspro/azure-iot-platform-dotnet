@@ -83,7 +83,7 @@
             "name": "[guid(resourceGroup().id)]",
             "scope": "[variables('storageAccountid')]",
             "dependsOn": [
-                "[variables('storageAccountName')]"
+                 "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
             ],
             "properties": {
                 "roleDefinitionId": "[variables(parameters('builtInRoleType'))]",

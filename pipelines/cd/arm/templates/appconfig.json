@@ -18,7 +18,7 @@
         }
     },
     "variables": {
-        "identityName": "[concat(split(parameters('appConfigName'),'-')[0] ,'-umid-' , split(parameters('appConfigName'),'-')[2])]"   
+        "identityName": "[concat(split(resourceGroup().Name,'-')[2] ,'iot-umid-' , split(resourceGroup().Name,'-')[3])]"   
     },
     "resources": [
         {
