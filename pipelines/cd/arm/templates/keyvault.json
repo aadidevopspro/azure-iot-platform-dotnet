@@ -73,10 +73,6 @@
       "identityName": "[concat(resourceGroup().Name,'-')[2] ,'iot-umid-' , split(resourceGroup().Name,'-')[2])]",
       "workSpaceID": "[concat('/subscriptions/',parameters('subscriptionId'),'/resourceGroups/',parameters('resourceGroup'),'/providers/microsoft.operationalinsights/workspaces/',parameters('applicationCode'),'-loganalyticsws-',parameters('environmentCategory'))]",
       "settingsName": "[concat(parameters('applicationCode'),'-diagnosticsetting-',parameters('environmentCategory'))]",
-      "funcapp1":  "[concat(split(parameter('resourceName'),'-')[0] ,'-devicetwinfuncapp-' , split(parameter('resourceName'),'-')[2])]",
-      "funcapp3":  "[concat(split(parameter('resourceName'),'-')[0] ,'-iotdeploymentfuncapp-' , split(parameter('resourceName'),'-')[2])]",
-      "funcapp4":  "[concat(split(parameter('resourceName'),'-')[0] ,'-alertingactionsfuncapp-' , split(parameter('resourceName'),'-')[2])]",
-      "funcapp6":  "[concat(split(parameter('resourceName'),'-')[0] ,'-batchprocessorfuncapp-' , split(parameter('resourceName'),'-')[2])]",
     },
     "resources": [
       {
@@ -160,56 +156,6 @@
                   "certificates": []
                 }
             },
-          {            
-            "tenantId": "[subscription().tenantid]",
-            "objectId": "[reference(resourceId('Microsoft.Web/sites', variables('funcapp1')), '2016-08-01', 'Full').identity.principalId]",
-            "permissions": {
-               "keys": [],
-               "secrets": [
-                  "get",
-                  "list"
-                ],
-                "certificates": []
-              }  
-          },
-          {            
-            "tenantId": "[subscription().tenantid]",
-            "objectId": "[reference(resourceId('Microsoft.Web/sites', variables('funcapp3')), '2016-08-01', 'Full').identity.principalId]",
-            "permissions": {
-               "keys": [],
-               "secrets": [
-                  "get",
-                  "list"
-                ],
-                "certificates": []
-              }  
-          },
-          {            
-            "tenantId": "[subscription().tenantid]",
-            "objectId": "[reference(resourceId('Microsoft.Web/sites', variables('funcapp4')), '2016-08-01', 'Full').identity.principalId]",
-            "permissions": {
-               "keys": [],
-               "secrets": [
-                  "get",
-                  "list"
-                ],
-                "certificates": []
-              }  
-          },
-          {            
-            "tenantId": "[subscription().tenantid]",
-            "objectId": "[reference(resourceId('Microsoft.Web/sites', variables('funcapp6')), '2016-08-01', 'Full').identity.principalId]",
-            "permissions": {
-               "keys": [],
-               "secrets": [
-                  "get",
-                  "list"
-                ],
-                "certificates": []
-              }  
-          }
-          ]
-        },
         "resources":[
           {
           "type": "providers/diagnosticsettings",
