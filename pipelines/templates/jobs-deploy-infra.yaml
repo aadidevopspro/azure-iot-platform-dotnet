@@ -154,6 +154,7 @@ jobs:
     condition: and(true,eq('${{parameters.isHelmVersion3}}',false))
     dependsOn:
       - resourceGroup
+      - storageAccount
     variables:
       - template: variables-deploy-infra.yaml
         parameters:
@@ -221,8 +222,6 @@ jobs:
             -resourceName $(aksName)
             -location ${{parameters.locationName}}
             -dnsPrefix $(aksName)-dns
-            -servicePrincipalClientId $servicePrincipalId
-            -servicePrincipalClientSecret $servicePrincipalKey
             -omsWorkspaceName $(omsWorkspaceName)
             -kubernetesVersion ${{parameters.kubernetesVersion}}
             -agentVMSize ${{parameters.aksAgentVmSize}}
@@ -284,6 +283,7 @@ jobs:
     displayName: Provision AKS V3
     dependsOn:
       - resourceGroup
+      - storageAccount
     condition: and(true,eq('${{parameters.isHelmVersion3}}',true))
     variables:
       - template: variables-deploy-infra.yaml
@@ -352,8 +352,6 @@ jobs:
             -resourceName $(aksName)
             -location ${{parameters.locationName}}
             -dnsPrefix $(aksName)-dns
-            -servicePrincipalClientId $servicePrincipalId
-            -servicePrincipalClientSecret $servicePrincipalKey
             -omsWorkspaceName $(omsWorkspaceName)
             -kubernetesVersion ${{parameters.kubernetesVersion}}
             -agentVMSize ${{parameters.aksAgentVmSize}}
@@ -618,6 +616,7 @@ jobs:
     displayName: Provision Key Vault
     dependsOn:
       - resourceGroup
+      - storageAccount
     variables:
       - template: variables-deploy-infra.yaml
         parameters:
@@ -713,6 +712,7 @@ jobs:
     displayName: Provision App Configuration
     dependsOn:
       - resourceGroup
+      - storageAccount
     variables:
       - template: variables-deploy-infra.yaml
         parameters:
@@ -778,9 +778,16 @@ jobs:
           inlineScript: |-
             az aks get-credentials -n $(aksName) -g $(resourceGroupName)
             storageAccountKey=$(az storage account keys list --account-name $(storageAccountName) | jq -r .[0].value)
+            appconfigEndpoint="https://$(appConfigurationName).azconfig.io"
+            managedIdentityClient=$(az identity show -g $(resourceGroupName) -n $(userAssignedManagedIdentityName) --query clientId -otsv)
             appConfigurationConnectionString=$(az appconfig credential list --name $(appConfigurationName) -g $(resourceGroupName) | jq -r .[0].connectionString)
-            kubectl create secret generic --namespace=default globalsecrets --from-literal=AppConfigurationConnectionString=$appConfigurationConnectionString --dry-run -o yaml | kubectl apply -f -
+            globalClientAuthJwtAuthIssuer=$(az appconfig kv show --key "Global:ClientAuth:Jwt:AuthIssuer" --connection-string $appConfigurationConnectionString | jq .value)
+            globalClientAuthRoles=$(az appconfig kv list --connection-string $appConfigurationConnectionString --key "Global:ClientAuth:Roles:*" | jq -c '.[] | .value')
+            globalClientCorsWhiteList=$(az appconfig kv show --key "Global:ClientAuth:CorsWhitelist" --connection-string $appConfigurationConnectionString | jq .value)
+            globalAuthRequired=$(az appconfig kv show --key "Global:AuthRequired" --connection-string $appConfigurationConnectionString | jq .value)
+            globalDevelopmentMode=$(az appconfig kv show --key "Global:DevelopmentMode" --connection-string $appConfigurationConnectionString | jq .value)            
             kubectl create secret generic --namespace=default azure-secret --from-literal=azurestorageaccountname=$(storageAccountName) --from-literal=azurestorageaccountkey=$storageAccountKey --dry-run=client -o yaml | kubectl apply -f -
+            kubectl create configmap  globalconfigs  --from-literal=AppConfigEndpoint=$appConfigEndpoint  --from-literal=ManagedIdentityClientId=$managedIdentityClientId --from-literal=keyVaultName=$(keyVaultName)  --from-literal=globalClientAuthJwtAuthIssuer="$globalClientAuthJwtAuthIssuer"  --from-literal=globalClientAuthRoles="$globalClientAuthRoles" --from-literal=globalClientCorsWhiteList=$globalClientCorsWhiteList --from-literal=globalAuthRequired=$globalAuthRequired --from-literal=globalDevelopmentMode=$globalDevelopmentMode
 
   - job: globalsecretsV3
     displayName: Create K8s secrets
@@ -809,9 +816,121 @@ jobs:
           inlineScript: |-
             az aks get-credentials -n $(aksName) -g $(resourceGroupName)
             storageAccountKey=$(az storage account keys list --account-name $(storageAccountName) | jq -r .[0].value)
+            appconfigEndpoint="https://$(appConfigurationName).azconfig.io"
+            managedIdentityClient=$(az identity show -g $(resourceGroupName) -n $(userAssignedManagedIdentityName) --query clientId -otsv)
             appConfigurationConnectionString=$(az appconfig credential list --name $(appConfigurationName) -g $(resourceGroupName) | jq -r .[0].connectionString)
-            kubectl create secret generic --namespace=default globalsecrets --from-literal=AppConfigurationConnectionString=$appConfigurationConnectionString --dry-run -o yaml | kubectl apply -f -
+            globalClientAuthJwtAuthIssuer=$(az appconfig kv show --key "Global:ClientAuth:Jwt:AuthIssuer" --connection-string $appConfigurationConnectionString | jq .value)
+            globalClientAuthRoles=$(az appconfig kv list --connection-string $appConfigurationConnectionString --key "Global:ClientAuth:Roles:*" | jq -c '.[] | .value')
+            globalClientCorsWhiteList=$(az appconfig kv show --key "Global:ClientAuth:CorsWhitelist" --connection-string $appConfigurationConnectionString | jq .value)
+            globalAuthRequired=$(az appconfig kv show --key "Global:AuthRequired" --connection-string $appConfigurationConnectionString | jq .value)
+            globalDevelopmentMode=$(az appconfig kv show --key "Global:DevelopmentMode" --connection-string $appConfigurationConnectionString | jq .value)            
             kubectl create secret generic --namespace=default azure-secret --from-literal=azurestorageaccountname=$(storageAccountName) --from-literal=azurestorageaccountkey=$storageAccountKey --dry-run=client -o yaml | kubectl apply -f -
+            kubectl create configmap  globalconfigs  --from-literal=AppConfigEndpoint=$appConfigEndpoint  --from-literal=ManagedIdentityClientId=$managedIdentityClientId --from-literal=keyVaultName=$(keyVaultName)  --from-literal=globalClientAuthJwtAuthIssuer="$globalClientAuthJwtAuthIssuer"  --from-literal=globalClientAuthRoles="$globalClientAuthRoles" --from-literal=globalClientCorsWhiteList=$globalClientCorsWhiteList --from-literal=globalAuthRequired=$globalAuthRequired --from-literal=globalDevelopmentMode=$globalDevelopmentMode
+
+  - job: deployAADPodIdentity
+    displayName: Deploy AAD Pod identity in AKS Cluster
+    dependsOn:
+      - aks
+      - globalsecrets
+      - keyvault
+    variables:
+      - template: variables-deploy-infra.yaml
+        parameters:
+          subscriptionName: ${{parameters.subscriptionName}}
+          locationName: ${{parameters.locationName}}
+          environmentName: ${{parameters.environmentName}}
+          subscriptionId: ${{parameters.subscriptionId}}
+          applicationCode: ${{parameters.applicationCode}}
+          applicationShortCode: ${{parameters.applicationShortCode}}
+          environmentCategory: ${{parameters.environmentCategory}}
+    steps:
+      - checkout: self
+        displayName: Checkout repository
+
+      - task: HelmInstaller@1
+        displayName: Install Helm
+        inputs:
+          helmVersionToInstall: $(helmVersion2)
+
+      - task: HelmDeploy@0
+        displayName: Initialize Helm
+        inputs:
+          connectionType: Azure Resource Manager
+          azureSubscription: ${{parameters.subscriptionName}}
+          azureResourceGroup: $(resourceGroupName)
+          kubernetesCluster: $(aksName)
+          namespace: default
+          command: init
+          arguments: --force-upgrade --tiller-image=ghcr.io/helm/tiller:v$(helmVersion2)
+
+      - task: Bash@3
+        displayName: Register and Enable Pod Identity add-on
+        inputs:
+          targetType: inline
+          script: |-
+                az feature register --name EnablePodIdentityPreview --namespace Microsoft.ContainerService
+                az extension add --name aks-preview
+                sleep 5m
+                az feature show --name EnablePodIdentityPreview --namespace Microsoft.ContainerService -o table
+
+
+      - task: AzureCLI@2
+        displayName: Install AAD Pod Identity
+        inputs:
+          azureSubscription: ${{parameters.subscriptionName}}
+          scriptLocation: inlineScript
+          scriptType: bash
+          inlineScript: |-
+                az aks get-credentials -n $(aksName) -g $(resourceGroupName)
+                userManagedIdentityID=$(az identity show -n $(userAssignedManagedIdentityName) -g $(resourceGroupName) --query "id" -o tsv)
+                az aks update -g $(resourceGroupName) -n $(aksName) --enable-pod-identity --enable-pod-identity-with-kubenet
+                az aks pod-identity add --resource-group $(resourceGroupName) --cluster-name $(aksName) --namespace default  --name $(userAssignedManagedIdentityName) --identity-resource-id $userManagedIdentityID
+
+  - job: deployAADPodIdentityV3
+    displayName: Deploy AAD Pod identity in AKS Cluster
+    dependsOn:
+      - aksV3
+      - globalsecretsV3
+    variables:
+      - template: variables-deploy-infra.yaml
+        parameters:
+          subscriptionName: ${{parameters.subscriptionName}}
+          locationName: ${{parameters.locationName}}
+          environmentName: ${{parameters.environmentName}}
+          subscriptionId: ${{parameters.subscriptionId}}
+          applicationCode: ${{parameters.applicationCode}}
+          applicationShortCode: ${{parameters.applicationShortCode}}
+          environmentCategory: ${{parameters.environmentCategory}}
+    steps:
+      - checkout: self
+        displayName: Checkout repository
+
+      - task: HelmInstaller@1
+        displayName: Install Helm
+        inputs:
+          helmVersionToInstall: $(helmVersion3)
+
+      - task: Bash@3
+        displayName: Register and Enable Pod Identity add-on
+        inputs:
+          targetType: inline
+          script: |-
+                az feature register --name EnablePodIdentityPreview --namespace Microsoft.ContainerService
+                az extension add --name aks-preview
+                sleep 5m
+                az feature show --name EnablePodIdentityPreview --namespace Microsoft.ContainerService -o table
+
+      - task: AzureCLI@2
+        displayName: Install AAD Pod Identity
+        inputs:
+          azureSubscription: ${{parameters.subscriptionName}}
+          scriptLocation: inlineScript
+          scriptType: bash
+          inlineScript: |-
+                az aks get-credentials -n $(aksName) -g $(resourceGroupName)
+                az aks update -g $(resourceGroupName) -n $(aksName) --enable-pod-identity --enable-pod-identity-with-kubenet
+                userManagedIdentityID=$(az identity show -n $(userAssignedManagedIdentityName) -g $(resourceGroupName) --query "id" -o tsv)
+                az aks pod-identity add --resource-group $(resourceGroupName) --cluster-name $(aksName) --namespace default  --name $(userAssignedManagedIdentityName) --identity-resource-id $userManagedIdentityID
 
   - job: appInsights
     displayName: Provision Application Insights
@@ -1057,6 +1176,7 @@ jobs:
             az appconfig kv set --key TenantManagerService:TwinChangeFunctionUri --value $deviceTwinFuncUri --name $(appConfigurationName) --yes
             az appconfig kv set --key TenantManagerService:TelemetryFunctionUri --value $deviceTwinFuncUri --name $(appConfigurationName) --yes
             az appconfig kv set --key TenantManagerService:LifecycleFunctionUri --value $deviceTwinFuncUri --name $(appConfigurationName) --yes
+               
 
   - job: populateKeyVault
     displayName: Populate Key Vault
@@ -1129,6 +1249,7 @@ jobs:
             mapskey=$(az maps account keys list --name $(mapsName) --resource-group $(resourceGroupName) --query primaryKey --output tsv)
             az keyvault secret set --vault-name $(keyVaultName) --name 'ConfigService--AzureMapsKey' --value $mapskey
 
+
             key=$(az keyvault secret show --vault-name $(keyVaultName) -n IdentityGatewayService--PrivateKey)
             if [ -z "$key" ]
             then
@@ -1197,10 +1318,8 @@ jobs:
             devicetwinPropfn=$(functionApp1Name)
             keyVaultSecretUri="https://${{parameters.applicationCode}}-keyvault-${{parameters.environmentCategory}}.vault.azure.net"
             storageAccountConn=$(az keyvault secret show --name "Global--StorageAccountConnectionString" --vault-name $(keyVaultName) --query "value" --output tsv)
-            appConfigurationConnectionString=$(az appconfig credential list --name $(appConfigurationName) -g $(resourceGroupName) | jq -r .[0].connectionString)
             az functionapp config appsettings set --name $devicetwinPropfn \
               --settings \
-                "AppConfigurationConnectionString"="$appConfigurationConnectionString" \
                 "CosmosDbConnectionString"="@Microsoft.KeyVault(SecretUri=$keyVaultSecretUri/secrets/Global--CosmosDb--DocumentDbConnectionString/)" \
                 "TelemetryEventHubConnectionString"="@Microsoft.KeyVault(SecretUri=$keyVaultSecretUri/secrets/TenantManagerService--TelemetryEventHubConnectionString/)" \
                 "LifecycleEventHubConnectionString"="@Microsoft.KeyVault(SecretUri=$keyVaultSecretUri/secrets/TenantManagerService--LifecycleEventHubConnectionString/)" \
@@ -1226,16 +1345,6 @@ jobs:
                 --resource-group $(resourceGroupName) \
                 --settings AzureWebJobs.DeviceTelemetry.Disabled=false
             fi
-
-      - task: AzureCLI@2
-        displayName: Set FunctionApp Identity to keyvault Access Policy
-        inputs:
-          azureSubscription: ${{parameters.subscriptionName}}
-          scriptLocation: inlineScript
-          scriptType: bash
-          inlineScript: |-
-           objectId=$(az functionapp identity show --name $(functionApp1Name) --resource-group $(resourceGroupName) | jq -r .principalId)
-           az keyvault set-policy --name $(keyVaultName) --object-id $objectId --secret-permissions get list --key-permissions get list
 
   - job: function2
     displayName: Create App Config Function
@@ -1343,16 +1452,6 @@ jobs:
                 "ActionsEventHubConsumerGroup"="alertingactions" \
               --resource-group $(resourceGroupName)
 
-      - task: AzureCLI@2
-        displayName: Set FunctionApp Identity to keyvault Access Policy
-        inputs:
-          azureSubscription: ${{parameters.subscriptionName}}
-          scriptLocation: inlineScript
-          scriptType: bash
-          inlineScript: |-
-           objectId=$(az functionapp identity show --name $(functionApp3Name) --resource-group $(resourceGroupName) | jq -r .principalId)
-           az keyvault set-policy --name $(keyVaultName) --object-id $objectId --secret-permissions get list --key-permissions get list
-
 
   - job: function4
     displayName: Create azure iot Deployment Function
@@ -1408,29 +1507,17 @@ jobs:
           inlineScript: |-
             iotdeploymentsynfn=$(functionApp4Name)
             keyVaultSecretUri="https://${{parameters.applicationCode}}-keyvault-${{parameters.environmentCategory}}.vault.azure.net"
-            appConfigurationConnectionString=$(az appconfig credential list --name $(appConfigurationName) -g $(resourceGroupName) | jq -r .[0].connectionString)
             blobStorageKey=$(az storage account keys list -g $(resourceGroupName) -n $(storageAccountName) --query "[?contains(keyName, 'key1')]".value --output tsv)
             blobStorageConnString="DefaultEndpointsProtocol=https;AccountName=$(storageAccountName);AccountKey=$blobStorageKey;EndpointSuffix=core.windows.net"
             az functionapp config appsettings set --name $iotdeploymentsynfn \
               --settings \
                 "CosmosDbConnectionString"="@Microsoft.KeyVault(SecretUri=keyVaultSecretUri/secrets/Global--CosmosDb--DocumentDbConnectionString/)" \
-                "AppConfigurationConnectionString"="$appConfigurationConnectionString" \
                 "TableStorageConnectionString"="$blobStorageConnString" \
                 "AzureStorageConnectionString"="$blobStorageConnString" \
                 "TwinChangeEventHubConnectionString"="@Microsoft.KeyVault(SecretUri=keyVaultSecretUri/secrets/TenantManagerService--TwinChangeEventHubConnectionString/)" \
                 "DeviceDeploymentHistoryConsumerGroup"="devicedeploymenthistory" \
                 "DeploymentsDatabaseId"="pcs-storage" \
               --resource-group $(resourceGroupName)
-
-      - task: AzureCLI@2
-        displayName: Set FunctionApp Identity to keyvault Access Policy
-        inputs:
-          azureSubscription: ${{parameters.subscriptionName}}
-          scriptLocation: inlineScript
-          scriptType: bash
-          inlineScript: |-
-           objectId=$(az functionapp identity show --name $(functionApp4Name) --resource-group $(resourceGroupName) | jq -r .principalId)
-           az keyvault set-policy --name $(keyVaultName) --object-id $objectId --secret-permissions get list --key-permissions get list
 
   - job: function5
     displayName: Create Batch Telemetry Function
@@ -1487,7 +1574,6 @@ jobs:
             batchProcessorfn=$(functionApp6Name)
             keyVaultSecretUri="https://${{parameters.applicationCode}}-keyvault-${{parameters.environmentCategory}}.vault.azure.net"
             telemetryEvConn="@Microsoft.KeyVault(SecretUri=$keyVaultSecretUri/secrets/TenantManagerService--TelemetryEventHubConnectionString/)"
-            appConfigurationConnectionString=$(az appconfig credential list --name $(appConfigurationName) -g $(resourceGroupName) | jq -r .[0].connectionString)
             storageAccountConn=$(az keyvault secret show --name "Global--StorageAccountConnectionString" --vault-name $(keyVaultName) --query "value" --output tsv)
             az functionapp config appsettings set --name $batchProcessorfn \
               --settings \
@@ -1495,7 +1581,6 @@ jobs:
                 "DeviceStreamConsumerGroup"="devicestream" \
                 "BatchThreshold"="12" \
                 "BatchWriteDelay"="85" \
-                "AppConfigConnectionString"="$appConfigurationConnectionString" \
               --resource-group $(resourceGroupName)
             telemetryStorageType=${{parameters.telemetryStorageType}}
             if [ ${telemetryStorageType,,} == "ade"  ]
@@ -1508,16 +1593,6 @@ jobs:
                 --resource-group $(resourceGroupName) \
                 --settings AzureWebJobs.BatchTelemetryProcessor.Disabled=true
             fi
-
-      - task: AzureCLI@2
-        displayName: Set FunctionApp Identity to keyvault Access Policy
-        inputs:
-          azureSubscription: ${{parameters.subscriptionName}}
-          scriptLocation: inlineScript
-          scriptType: bash
-          inlineScript: |-
-           objectId=$(az functionapp identity show --name $(functionApp6Name) --resource-group $(resourceGroupName) | jq -r .principalId)
-           az keyvault set-policy --name $(keyVaultName) --object-id $objectId --secret-permissions get list --key-permissions get list
 
   - job: deployFunctions
     displayName: Deploy functions
