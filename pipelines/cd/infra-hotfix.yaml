@@ -140,7 +140,7 @@ stages:
           sendgridEmail: $(sendGridEmail)
           sysAdmins: $(sysAdmins)
           aksAgentVmSize: $(aksAgentVmSize)
-          azureDevOpsProjectId: AzurePlatform
+          azureDevOpsProjectId: serenity-POC
           testPipelineId: 453
           runVersion: specific
           testPipelineRunId: $(testPipelineRunId)
