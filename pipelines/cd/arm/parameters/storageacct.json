@@ -6,7 +6,6 @@
       "storageAccountType": { "value": "Standard_LRS" },
       "blobContainerName": { "value": "telemetry" },
       "location": { "value": "eastus" },
-      "builtInRoleType":{"value": "Storage Blob Data Contributor"},
-      "principalId": { "value": "" }
+      "builtInRoleType":{"value": "Storage Blob Data Contributor"}
     }
   }

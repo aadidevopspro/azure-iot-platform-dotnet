@@ -70,18 +70,14 @@
         "metadata": {
           "description": "The name for the cosmos database"
         }
-      },
-      "guidValue": {
-        "type": "string",
-        "defaultValue": "[newGuid()]"
       }
     },
     "variables": {
       "accountName": "[toLower(parameters('accountName'))]",
-      "identityName": "[concat(split(parameters('accountName'),'-')[0] ,'-umid-' , split(parameters('accountName'),'-')[2])]",
+      "identityName": "[concat(split(resourceGroup().Name,'-')[2] ,'iot-umid-' , split(resourceGroup().Name,'-')[3])]",
       "roleDefinitionId": "[guid('sql-role-definition-', resourceId('Microsoft.DocumentDB/databaseAccounts', variables('accountName')))]",
       "roleAssignmentId": "[guid('sql-role-assignment-', resourceId('Microsoft.DocumentDB/databaseAccounts', variables('accountName')))]",
-      "unique_string": "[uniqueString(parameters('guidValue'))]",
+      "unique_string": "[uniqueString(newGuid())]",
       "consistencyPolicy": {
         "Eventual": {
           "defaultConsistencyLevel": "Eventual"

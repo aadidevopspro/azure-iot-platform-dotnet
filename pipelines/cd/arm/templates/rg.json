@@ -9,7 +9,9 @@
             "type": "string"
         }
     },
-    "variables": {},
+    "variables": {
+        "identityName": "[concat(split(parameters('resourceGroupName'),'-')[2] ,'iot-umid-' , split(parameters('resourceGroupName'),'-')[3])]"
+    },
     "resources": [
         {
             "type": "Microsoft.Resources/resourceGroups",
@@ -18,6 +20,15 @@
             "name": "[parameters('resourceGroupName')]",
             "properties": {},
             "tags": {}
+        },
+        {
+            "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+            "name": "[variables('identityName')]",
+            "apiVersion": "2018-11-30",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/resourceGroups', parameters('resourceGroupName'))]"
+            ]
         }
     ],
     "outputs": {}
