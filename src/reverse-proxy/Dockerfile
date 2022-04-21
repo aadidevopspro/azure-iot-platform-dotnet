@@ -1,4 +1,4 @@
-FROM node:11-alpine as codebuilder
+FROM node:18-alpine as codebuilder
 WORKDIR /app
 RUN apk add --no-cache bash
 RUN apk --update add python3
