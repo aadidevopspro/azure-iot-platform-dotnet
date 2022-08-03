@@ -9,7 +9,7 @@
         "@microsoft/azure-iot-ux-fluent-css": "file:azure-iot-ux-fluent-css",
         "adal-angular": "1.0.17",
         "ag-grid-community": "19.1.4",
-        "ag-grid-react": "19.1.2",
+        "ag-grid-react": "28.1.0",
         "angular-oauth2-oidc": "^8.0.4",
         "azure-storage": "^2.10.3",
         "cross-env": "^6.0.3",
